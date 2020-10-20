@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="robot_simulation" type="robot_simulation_robot" name="robot" />
+
+    <node pkg="robot_simulation" type="robot_simulation_person" name="person" />
+
+    <node pkg="state_machine" type="state_machine" name="state_machine" />
+</launch>

@@ -12,6 +12,10 @@ from geometry_msgs.msg import Pose
 from std_msgs.msg import String
 from robot_simulation_messages.srv import MoveTo
 from robot_simulation_messages.msg import PersonCalling
+from robot_simulation_messages.srv import GiveGesture
+
+width = 0
+height = 0
 
 def tired(level):
     threshold = 3
@@ -43,8 +47,7 @@ class Move(smach.State):
              self.play = True
              self.person_position.x = command.position.position.x
              self.person_position.y = command.position.position.y
-             print(self.person_position.x)
-             print(self.person_position.y)
+             print('Received command from a person in : ', self.person_position.x, ', ' , self.person_position.y)
 
 
      def execute(self, userdata):
@@ -54,10 +57,14 @@ class Move(smach.State):
                 return 'playing'
 
             if tired(userdata.move_counter_in) :
+                print('Robot is tired of moving... going to sleep')
                 return 'tired'
             else :
                 userdata.move_counter_out = userdata.move_counter_in + 1
                 t = Pose()
+                t.position.x = random.randint(0, width)
+                t.position.y = random.randint(0, height)
+
                 rospy.wait_for_service('/MoveToPosition')
                 try:
                     self.reach_position(t)
@@ -85,15 +92,31 @@ class Play(smach.State):
                                   outcomes=['tired','stop_play'],
                                   input_keys=['play_counter_in'],
                                   output_keys=['play_counter_out'])
+             self.wait_for_gesture = rospy.ServiceProxy('/GiveGesture', GiveGesture)
 
      def execute(self, userdata):
-        time.sleep(3)
+
+        for iteration in range(3):
+            if tired(userdata.play_counter_in) :
+                print('Robot is tired of playing... going to sleep')
+                return 'tired'
+
+            rospy.wait_for_service('/GiveGesture')
+            try:
+                gesture = self.wait_for_gesture()
+                print('obtained', gesture.goal.position.x, gesture.goal.position.y)
+            except rospy.ServiceException as e:
+                print("Service call failed: %s"%e)
+
         return 'stop_play'
 
 
 if __name__ == "__main__":
 
     rospy.init_node('robot_behavior_state_machine')
+
+    width = rospy.get_param('world_width', 20)
+    height = rospy.get_param('world_height', 20)
 
     # Create a SMACH state machine
     sm = smach.StateMachine(outcomes=['behavior_interface'])

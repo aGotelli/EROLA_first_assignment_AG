@@ -11,6 +11,7 @@ import random
 from geometry_msgs.msg import Pose
 from std_msgs.msg import String
 from robot_simulation_messages.srv import MoveTo
+from robot_simulation_messages.msg import PersonCalling
 
 def tired(level):
     threshold = 3
@@ -20,7 +21,10 @@ def tired(level):
         return False
 
 
-
+class Position:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
 
 class Move(smach.State):
      def __init__(self):
@@ -30,12 +34,17 @@ class Move(smach.State):
                                   output_keys=['move_counter_out'])
              #self.give_target = rospy.Publisher('/MoveToPosition', Pose, queue_size=10)
              self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
-             self.received_command = rospy.Subscriber("/PlayWithRobot", String, self.callback)
+             self.received_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.callback)
              self.play = False
+             self.person_position = Position()
 
      def callback(self, command):
-         if command.data == "play" :
+         if command.command.data == "play" :
              self.play = True
+             self.person_position.x = command.position.position.x
+             self.person_position.y = command.position.position.y
+             print(self.person_position.x)
+             print(self.person_position.y)
 
 
      def execute(self, userdata):

@@ -3,20 +3,16 @@
 
 #include "robot_simulation_messages/MoveTo.h"
 
-bool MoveToGivenPosition(robot_simulation_messages::MoveToRequest&,
+bool MoveToGivenPosition(robot_simulation_messages::MoveToRequest& T,
                           robot_simulation_messages::MoveToResponse&)
 {
-  ROS_INFO_STREAM("calling the server");
+  ROS_INFO_STREAM("Moving to a random position : " << T.goal.position.x << ", " << T.goal.position.y);
   ros::Duration waiting_time(3);
   waiting_time.sleep();
   return true;
 }
 
-//void move1(const geometry_msgs::Pose::ConstPtr target)
-//{
-//  ros::Duration waiting_time(3);
-//  waiting_time.sleep();
-//}
+
 
 int main(int argc, char **argv)
 {

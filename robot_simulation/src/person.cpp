@@ -6,19 +6,22 @@
 #include <random>
 
 #include "robot_simulation_messages/PersonCalling.h"
+#include "robot_simulation_messages/GiveGesture.h"
 
 
+int width, height;
 
+bool PointingGesture(robot_simulation_messages::GiveGesture::Request& ok,
+                      robot_simulation_messages::GiveGesture::Response& gesture)
+{
+  gesture.goal.position.x = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(width + 1));
+  gesture.goal.position.y = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(height + 1));
+  ROS_INFO_STREAM("Moving to pointed location");
+  ros::Duration waiting_time(3);
+  waiting_time.sleep();
 
-//geometry_msgs::Pose randPose(const int world_width, const int world_height)
-//{
-//  geometry_msgs::Pose position;
-//  position.position.x = (rand()/RAND_MAX)*(world_width + 1);
-//  position.position.y = (rand()/RAND_MAX)*(world_height + 1);
-
-//  return position;
-//}
-
+  return true;
+}
 
 
 
@@ -29,13 +32,12 @@ int main(int argc, char **argv)
 
   ros::NodeHandle nh_glob;
 
-  int width, height;
-
   nh_glob.param("world_width", width, 20);
   nh_glob.param("world_height", height, 20);
 
   ros::Publisher command_pub = nh_glob.advertise<robot_simulation_messages::PersonCalling>("/PlayWithRobot", 10);
 
+  ros::ServiceServer give_gesture = nh_glob.advertiseService("/GiveGesture", PointingGesture);
   ros::Rate loop_rate(50);
 
   ros::Time current_time = ros::Time::now();

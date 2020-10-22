@@ -44,6 +44,8 @@ Description :
           gesture is indeed provided by the service /GiveGesture.
 
     \todo talk about paramets as fatigue ecc
+
+    \todo problem of having two commands play if one not finished the other comes (this could be a problem)
 """
 
 
@@ -74,7 +76,7 @@ def reachPosition(pose, info):
     \param pose [geometry_msgs/Pose] is the position the robot should reach.
     \param info [string] is information to display when approaching the position.
 
-        This function calls the service and prints out a string. It is used instead of
+    This function calls the service and prints out a string. It is used instead of
     pasting the same code around.
     """
     rospy.wait_for_service('/MoveToPosition')
@@ -92,13 +94,13 @@ def isTired(level):
     \param level [integer] is the current level of fatigue of the robot.
     \return a boolen. True if the robot is "tired" false elsewhere.
 
-        This function compares the level of fatigue with and hard threshold defined within
-      the function.
+    This function compares the level of fatigue with and hard threshold defined within
+    the function.
 
     \todo Change the threshold to be a parameter in the launch file.
     """
     threshold = 5
-    if level > threshold:
+    if level >= threshold:
         return True
     else :
         return False
@@ -135,13 +137,13 @@ class Move(smach.State):
             """
             smach.State.__init__(self,
                                  outcomes=['tired','playing'],
-                                 input_keys=['move_counter_in', 'move_person_position_in'],
-                                 output_keys=['move_counter_out', 'move_person_position_out'])
-            self.received_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.commandReceived)
+                                 input_keys=['move_fatigue_counter_in', 'move_person_position_in'],
+                                 output_keys=['move_fatigue_counter_out', 'move_person_position_out'])
+            self.person_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.commandReceived)
             self.person_willing = "none"
             self.person = Pose()
 
-    def commandReceived(self, command):
+    def commandReceived(self, person):
         """!
         \brief commandReceived is the callback for the ROS subscriber to the topic /PlayWithRobot
         \param command is the command received from the person willing to interact with the robot.
@@ -151,11 +153,11 @@ class Move(smach.State):
         this context but other commands could be configurated). After it stores the position of the person
         willing to interact with the robot and it prints a log informing about what was received.
         """
-        if command.command.data == "play" :
-            self.person_willing = command.command.data
-            self.person.position.x = command.position.position.x
-            self.person.position.y = command.position.position.y
-            print('Received command : ', command.command.data, ' from a person in : ', self.person.position.x, ', ' , self.person.position.y)
+        if person.command.data == "play" :
+            self.person_willing = person.command.data
+            self.person.position.x = person.position.position.x
+            self.person.position.y = person.position.position.y
+            print('Received command : ', person.command.data, ' from a person in : ', self.person.position.x, ', ' , self.person.position.y)
 
     def execute(self, userdata):
         """!
@@ -182,15 +184,16 @@ class Move(smach.State):
                 self.person_willing  = "none"
                 return 'playing'
 
-            if isTired(userdata.move_counter_in) :
+            if isTired(userdata.move_fatigue_counter_in) :
                 print('Robot is tired of moving...')
                 return 'tired'
             else :
-                userdata.move_counter_out = userdata.move_counter_in + 1
+                userdata.move_fatigue_counter_out = userdata.move_fatigue_counter_in + 1
                 t = Pose()
                 t.position.x = random.randint(0, width)
                 t.position.y = random.randint(0, height)
                 reachPosition(t, 'Moving to a random position')
+                print('Level of fatigue : ', userdata.move_fatigue_counter_in)
 
 
 
@@ -208,12 +211,12 @@ class Rest(smach.State):
     def __init__(self):
             smach.State.__init__(self,
                                  outcomes=['rested'],
-                                 input_keys=['rest_counter_in','person_position_in'],
-                                 output_keys=['rest_counter_out'])
+                                 input_keys=['rest_fatigue_counter_in'],
+                                 output_keys=['rest_fatigue_counter_out'])
 
     def execute(self, userdata):
         reachPosition(sleep_station, 'Going to sleep...')
-        userdata.rest_counter_out = 0
+        userdata.rest_fatigue_counter_out = 0
         return 'rested'
 
 
@@ -236,14 +239,16 @@ class Play(smach.State):
     def __init__(self):
             smach.State.__init__(self,
                                  outcomes=['tired','stop_play'],
-                                 input_keys=['play_counter_in', 'play_person_position_in'],
-                                 output_keys=['play_counter_out', 'play_person_position_out'])
+                                 input_keys=['play_fatigue_counter_in', 'play_person_position_in'],
+                                 output_keys=['play_fatigue_counter_out', 'play_person_position_out'])
             self.wait_for_gesture = rospy.ServiceProxy('/GiveGesture', GiveGesture)
 
     def execute(self, userdata):
        reachPosition(userdata.play_person_position_in, 'Going to person position')
+       userdata.play_fatigue_counter_out = userdata.play_fatigue_counter_in + 1
+       print('Level of fatigue : ', userdata.play_fatigue_counter_in)
        for iteration in range(3):
-           if isTired(userdata.play_counter_in) :
+           if isTired(userdata.play_fatigue_counter_in) :
                print('Robot is tired of playing...')
                return 'tired'
 
@@ -255,8 +260,8 @@ class Play(smach.State):
                print("Service call failed: %s"%e)
 
            reachPosition(gesture.goal, 'Going to pointed position')
-           userdata.play_counter_out = userdata.play_counter_in + 1
-
+           userdata.play_fatigue_counter_out = userdata.play_fatigue_counter_in + 1
+           print('Level of fatigue : ', userdata.play_fatigue_counter_in)
        return 'stop_play'
 
 
@@ -291,21 +296,21 @@ if __name__ == "__main__":
         smach.StateMachine.add('MOVE', Move(),
                                transitions={'tired':'REST',
                                             'playing':'PLAY'},
-                               remapping={'move_counter_in':'sm_counter',
-                                          'move_counter_out':'sm_counter',
+                               remapping={'move_fatigue_counter_in':'sm_counter',
+                                          'move_fatigue_counter_out':'sm_counter',
                                           'move_person_position_out':'person',
                                           'move_person_position_in':'person'})
 
         smach.StateMachine.add('REST', Rest(),
                                transitions={'rested':'MOVE'},
-                               remapping={'rest_counter_in':'sm_counter',
-                                          'rest_counter_out':'sm_counter'})
+                               remapping={'rest_fatigue_counter_in':'sm_counter',
+                                          'rest_fatigue_counter_out':'sm_counter'})
 
         smach.StateMachine.add('PLAY', Play(),
                                transitions={'tired':'REST',
                                             'stop_play':'MOVE'},
-                               remapping={'play_counter_in':'sm_counter',
-                                          'play_counter_out':'sm_counter',
+                               remapping={'play_fatigue_counter_in':'sm_counter',
+                                          'play_fatigue_counter_out':'sm_counter',
                                           'play_person_position_in':'person',
                                           'play_person_position_out':'person'})
 

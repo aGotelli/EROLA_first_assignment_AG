@@ -56,10 +56,10 @@ bool PointingGesture(robot_simulation_messages::GiveGesture::Request&,
 {
   gesture.goal.position.x = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(width + 1));
   gesture.goal.position.y = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(height + 1));
-  ROS_INFO_STREAM("Moving to pointed location");
+  ROS_INFO_STREAM("Deciding location to point...");
   ros::Duration waiting_time(3);
   waiting_time.sleep();
-  ROS_INFO_STREAM("Pointed location reached");
+  ROS_INFO_STREAM("Pointed location decided");
   return true;
 }
 

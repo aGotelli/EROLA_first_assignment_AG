@@ -50,9 +50,9 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>roscpp geometry_msgs robot_simulation_messages std_msgs</build_depend>
-  <build_export_depend>roscpp geometry_msgs robot_simulation_messages std_msgs</build_export_depend>
-  <exec_depend>roscpp geometry_msgs robot_simulation_messages std_msgs</exec_depend>
+  <build_depend>roscpp geometry_msgs robot_simulation_messages std_msgs smach_ros</build_depend>
+  <build_export_depend>roscpp geometry_msgs robot_simulation_messages std_msgs smach_ros</build_export_depend>
+  <exec_depend>roscpp geometry_msgs robot_simulation_messages std_msgs smach_ros</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

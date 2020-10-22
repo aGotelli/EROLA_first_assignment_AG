@@ -37,6 +37,7 @@
 
 #include "robot_simulation_messages/PersonCalling.h"
 #include "robot_simulation_messages/GiveGesture.h"
+#include <smach_msgs/SmachContainerStatus.h>
 
 
 static int width;   ///< World discretized dimension in width.
@@ -63,6 +64,12 @@ bool PointingGesture(robot_simulation_messages::GiveGesture::Request&,
   return true;
 }
 
+static smach_msgs::SmachContainerStatus state_machine_status;
+void SaveStatus(smach_msgs::SmachContainerStatus::ConstPtr state_machine_status_)
+{
+  state_machine_status = (*state_machine_status_);
+}
+
 
 /*!
  * \brief main menage to collect parameters and pubishes a command constantly
@@ -87,7 +94,7 @@ int main(int argc, char **argv)
   nh_glob.param("world_height", height, 20);
 
   ros::Publisher command_pub = nh_glob.advertise<robot_simulation_messages::PersonCalling>("/PlayWithRobot", 10);
-
+  ros::Subscriber state_machine_status_sub = nh_glob.subscribe<smach_msgs::SmachContainerStatus>("/server_name/smach/container_status", 1, SaveStatus);
   ros::ServiceServer give_gesture = nh_glob.advertiseService("/GiveGesture", PointingGesture);
   ros::Rate loop_rate(50);
 
@@ -99,8 +106,11 @@ int main(int argc, char **argv)
     ros::spinOnce();
     current_time = ros::Time::now();
     time_elapsed = current_time - prev_time;
-    if( time_elapsed.toSec() >= 10 ) {
 
+
+    if( time_elapsed.toSec() >= 10 && state_machine_status.active_states.front() != "MOVE") {
+
+      //  Check that deseired time has elapsed and the robot is in Move state (neither in Rest not in Play)
       robot_simulation_messages::PersonCalling command;
       command.command.data = "play";
 

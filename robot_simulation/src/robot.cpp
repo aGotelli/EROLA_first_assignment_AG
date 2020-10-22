@@ -6,9 +6,9 @@
 bool MoveToGivenPosition(robot_simulation_messages::MoveToRequest& T,
                           robot_simulation_messages::MoveToResponse&)
 {
-  ROS_INFO_STREAM("Moving to a random position : " << T.goal.position.x << ", " << T.goal.position.y);
   ros::Duration waiting_time(3);
   waiting_time.sleep();
+  ROS_INFO_STREAM("Position reached : " << T.goal.position.x << ", " << T.goal.position.y);
   return true;
 }
 

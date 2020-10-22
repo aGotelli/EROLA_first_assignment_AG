@@ -59,7 +59,7 @@ bool PointingGesture(robot_simulation_messages::GiveGesture::Request&,
   ROS_INFO_STREAM("Moving to pointed location");
   ros::Duration waiting_time(3);
   waiting_time.sleep();
-
+  ROS_INFO_STREAM("Pointed location reached");
   return true;
 }
 

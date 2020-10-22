@@ -2,9 +2,14 @@
 <!-- Parameters defining the discretized world width and height -->
     <param name="world_width"     value="20" />
     <param name="world_height"    value="20" />
+
+    <param name="sleep_x_coord" value="5" />
+    <param name="sleep_y_coord" value="6" />
+
     <node pkg="robot_simulation" type="robot_simulation_robot" name="robot" output="screen"/>
 
     <node pkg="robot_simulation" type="robot_simulation_person" name="person"  output="screen"/>
 
     <node pkg="state_machine" type="state_machine" name="state_machine"  output="screen"/>
+
 </launch>

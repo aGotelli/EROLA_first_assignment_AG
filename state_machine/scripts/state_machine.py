@@ -66,6 +66,18 @@ from robot_simulation_messages.srv import GiveGesture
 width = 0
 height = 0
 
+move_to_pos_client = rospy.ServiceProxy('/MoveToPosition', MoveTo)
+
+def reachPosition(pose, info):
+    rospy.wait_for_service('/MoveToPosition')
+    try:
+        print(info)
+        move_to_pos_client(pose)
+    except rospy.ServiceException as e:
+        print("Service call failed: %s"%e)
+
+
+
 def isTired(level):
     """!
     \brief isTired check the level of fatigue to establish if the robot is "tired"
@@ -171,12 +183,7 @@ class Move(smach.State):
                 t = Pose()
                 t.position.x = random.randint(0, width)
                 t.position.y = random.randint(0, height)
-                rospy.wait_for_service('/MoveToPosition')
-                try:
-                    print('Moving to a random position')
-                    self.reach_position(t)
-                except rospy.ServiceException as e:
-                    print("Service call failed: %s"%e)
+                reachPosition(t, 'Moving to a random position')
 
 
 
@@ -199,14 +206,10 @@ class Rest(smach.State):
             self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
 
     def execute(self, userdata):
-        rospy.wait_for_service('/MoveToPosition')
-        try:
-            print('Going to sleep...')
-            self.reach_position(sleep_station)
-        except rospy.ServiceException as e:
-            print("Service call failed: %s"%e)
+        reachPosition(sleep_station, 'Going to sleep...')
         userdata.rest_counter_out = 0
         return 'rested'
+
 
 class Play(smach.State):
     """!
@@ -233,12 +236,7 @@ class Play(smach.State):
             self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
 
     def execute(self, userdata):
-       rospy.wait_for_service('/MoveToPosition')
-       try:
-           print('Going to person position')
-           self.reach_position(userdata.play_person_position_in)
-       except rospy.ServiceException as e:
-           print("Service call failed: %s"%e)
+       reachPosition(userdata.play_person_position_in, 'Going to person position')
        for iteration in range(3):
            if isTired(userdata.play_counter_in) :
                print('Robot is tired of playing...')
@@ -248,16 +246,11 @@ class Play(smach.State):
            try:
                gesture = self.wait_for_gesture()
                print('obtained', gesture.goal.position.x, gesture.goal.position.y)
-               rospy.wait_for_service('/MoveToPosition')
-               try:
-                   print('Going to pointed position')
-                   self.reach_position(userdata.play_person_position_in)
-               except rospy.ServiceException as e:
-                   print("Service call failed: %s"%e)
-
-               userdata.play_counter_out = userdata.play_counter_in + 1
            except rospy.ServiceException as e:
                print("Service call failed: %s"%e)
+
+           reachPosition(gesture.goal, 'Going to pointed position')
+           userdata.play_counter_out = userdata.play_counter_in + 1
 
        return 'stop_play'
 
@@ -273,6 +266,7 @@ if __name__ == "__main__":
 
     """
     rospy.init_node('robot_behavior_state_machine')
+
 
     width = rospy.get_param('world_width', 20)
     height = rospy.get_param('world_height', 20)

@@ -69,6 +69,14 @@ height = 0
 move_to_pos_client = rospy.ServiceProxy('/MoveToPosition', MoveTo)
 
 def reachPosition(pose, info):
+    """!
+    \brief reachPosition calls the service /MoveToPosition and prints out a string.
+    \param pose [geometry_msgs/Pose] is the position the robot should reach.
+    \param info [string] is information to display when approaching the position.
+
+        This function calls the service and prints out a string. It is used instead of
+    pasting the same code around.
+    """
     rospy.wait_for_service('/MoveToPosition')
     try:
         print(info)
@@ -129,7 +137,6 @@ class Move(smach.State):
                                  outcomes=['tired','playing'],
                                  input_keys=['move_counter_in', 'move_person_position_in'],
                                  output_keys=['move_counter_out', 'move_person_position_out'])
-            self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
             self.received_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.commandReceived)
             self.person_willing = "none"
             self.person = Pose()
@@ -203,7 +210,6 @@ class Rest(smach.State):
                                  outcomes=['rested'],
                                  input_keys=['rest_counter_in','person_position_in'],
                                  output_keys=['rest_counter_out'])
-            self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
 
     def execute(self, userdata):
         reachPosition(sleep_station, 'Going to sleep...')
@@ -233,7 +239,6 @@ class Play(smach.State):
                                  input_keys=['play_counter_in', 'play_person_position_in'],
                                  output_keys=['play_counter_out', 'play_person_position_out'])
             self.wait_for_gesture = rospy.ServiceProxy('/GiveGesture', GiveGesture)
-            self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
 
     def execute(self, userdata):
        reachPosition(userdata.play_person_position_in, 'Going to person position')

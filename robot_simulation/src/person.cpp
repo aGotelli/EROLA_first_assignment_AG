@@ -5,7 +5,10 @@
  * \version 0.1
  * \date 20/10/2020
  *
- * \param[in]
+ * \param [in] world_width
+ * \param [in] world_height
+ *
+ * \details
  *
  * Subscribes to: <BR>
  *    ° [None]

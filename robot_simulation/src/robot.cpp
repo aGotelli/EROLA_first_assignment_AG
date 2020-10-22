@@ -5,7 +5,7 @@
  * \version 0.1
  * \date 22/10/2020
  *
- * \param[in]
+ *
  *
  * Subscribes to: <BR>
  *    ° [None]

@@ -1,3 +1,52 @@
+"""!
+\file state_machine.py
+\brief this file contains the state machine for the high level control of this application
+\author Andrea Gotelli
+\version 0.2
+\date 22/10/2020
+
+\param [in] world_width the width of the discretized world
+\param [in] world_height the height of the discretized world
+\param [in] sleep_x_coord is the x coordinate of the position where the robot sleeps
+\param [in] sleep_y_coord is the y coordinate of the position where the robot sleeps
+
+\details
+
+Subscribes to: <BR>
+    ° /PlayWithRobot topic where the person publishes the given play command
+
+Publishes to: <BR>
+    ° [None]
+
+Service : <BR>
+    ° /GiveGesture as client, it waits for the gesture to come.
+    ° /MoveToPosition as cliet, ask to simulate the motion to the given position
+
+Description :
+        This file uses smach libraries to generate a state machine, which is used to control the
+    behaviors of the robot. Specifically, the state machine defines the transition from a state to
+    another using the interface provided by smach.
+
+    This file could be considered the head of the simulation an its more complex and important part.
+
+    The actions and the transitions are explained below:
+
+        ° The robot starts with the Move behavior, which makes the robot to move randomly in
+          the environment. In fact, a random postion (within the limit of the world) is
+          generated and passed to the service /MoveToPosition which simulates the motion.
+
+        ° When the robot is tired it goes in the Rest behavior. By doing this, it will first
+          move to the sleeping postion and it will wait some time before waiking up. Here, again,
+          to reach the position the service /MoveToPosition is called.
+
+        ° When the person gives a command (throught the topic /PlayWithRobot) the robot reaches the
+          position of the person (which is contained into the message) and waits for a gesture. The
+          gesture is indeed provided by the service /GiveGesture.
+
+
+"""
+
+
 #!/usr/bin/env python3
 # This Python file uses the following encoding: utf-8
 
@@ -18,6 +67,10 @@ width = 0
 height = 0
 
 def tired(level):
+    """Documentation for a function.
+
+    More details.
+    """
     threshold = 3
     if level > threshold:
         return True
@@ -25,54 +78,50 @@ def tired(level):
         return False
 
 
-class Position:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-
 sleep_station = Pose()
 
 class Move(smach.State):
-     def __init__(self):
-             smach.State.__init__(self,
-                                  outcomes=['tired','playing'],
-                                  input_keys=['move_counter_in'],
-                                  output_keys=['move_counter_out'])
-             #self.give_target = rospy.Publisher('/MoveToPosition', Pose, queue_size=10)
-             self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
-             self.received_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.callback)
-             self.play = False
-             self.person_position = Position()
+    """Documentation for a class.
 
-     def callback(self, command):
-         if command.command.data == "play" :
-             self.play = True
-             self.person_position.x = command.position.position.x
-             self.person_position.y = command.position.position.y
-             print('Received command from a person in : ', self.person_position.x, ', ' , self.person_position.y)
+    More details.
+    """
+    def __init__(self):
+            smach.State.__init__(self,
+                                 outcomes=['tired','playing'],
+                                 input_keys=['move_counter_in'],
+                                 output_keys=['move_counter_out'])
+            #self.give_target = rospy.Publisher('/MoveToPosition', Pose, queue_size=10)
+            self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
+            self.received_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.callback)
+            self.play = False
+            self.person = Pose()
 
+    def callback(self, command):
+        if command.command.data == "play" :
+            self.play = True
+            self.person.position.x = command.position.position.x
+            self.person.position.y = command.position.position.y
+            print('Received command from a person in : ', self.person.position.x, ', ' , self.person.position.y)
 
-     def execute(self, userdata):
-        while not rospy.is_shutdown():
-            if self.play :
-                self.play  = False
-                return 'playing'
-
-            if tired(userdata.move_counter_in) :
-                print('Robot is tired of moving...')
-                return 'tired'
-            else :
-                userdata.move_counter_out = userdata.move_counter_in + 1
-                t = Pose()
-                t.position.x = random.randint(0, width)
-                t.position.y = random.randint(0, height)
-
-                rospy.wait_for_service('/MoveToPosition')
-                try:
-                    print('Moving to a random position')
-                    self.reach_position(t)
-                except rospy.ServiceException as e:
-                    print("Service call failed: %s"%e)
+    def execute(self, userdata):
+       while not rospy.is_shutdown():
+           if self.play :
+               self.play  = False
+               return 'playing'
+           if tired(userdata.move_counter_in) :
+               print('Robot is tired of moving...')
+               return 'tired'
+           else :
+               userdata.move_counter_out = userdata.move_counter_in + 1
+               t = Pose()
+               t.position.x = random.randint(0, width)
+               t.position.y = random.randint(0, height)
+               rospy.wait_for_service('/MoveToPosition')
+               try:
+                   print('Moving to a random position')
+                   self.reach_position(t)
+               except rospy.ServiceException as e:
+                   print("Service call failed: %s"%e)
 
 
 

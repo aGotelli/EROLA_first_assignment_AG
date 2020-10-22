@@ -43,7 +43,7 @@ Description :
           position of the person (which is contained into the message) and waits for a gesture. The
           gesture is indeed provided by the service /GiveGesture.
 
-
+    \todo talk about paramets as fatigue ecc
 """
 
 
@@ -66,12 +66,18 @@ from robot_simulation_messages.srv import GiveGesture
 width = 0
 height = 0
 
-def tired(level):
-    """Documentation for a function.
+def isTired(level):
+    """!
+    \brief isTired check the level of fatigue to establish if the robot is "tired"
+    \param level [integer] is the current level of fatigue of the robot.
+    \return a boolen. True if the robot is "tired" false elsewhere.
 
-    More details.
+        This function compares the level of fatigue with and hard threshold defined within
+      the function.
+
+    \todo Change the threshold to be a parameter in the launch file.
     """
-    threshold = 3
+    threshold = 5
     if level > threshold:
         return True
     else :
@@ -81,96 +87,191 @@ def tired(level):
 sleep_station = Pose()
 
 class Move(smach.State):
-    """Documentation for a class.
+    """!
+    \class Move
+    \brief This class defines the state of the state machine corresponding to the robot randomly moving
 
-    More details.
+    This class inheritates from smach and it consist of a state in the state machine. The state
+    that is represented here is the Move state. In this state the robot moves around randomly calling
+    the service /MoveToPosition. As part of the smach class this class has the member function \function execute
+    providing the intended behavior. For more details about the content of this class, see the member function
+    documentations.
     """
+
     def __init__(self):
+            """!
+            \brief __init__ initializes the class and its members.
+            \param outcomes list of the possible outcomes from this state of the state machine.
+            \param input_keys list of the possible input for this state (user data shared among states).
+            \param output_keys list of the possible outputs for this state (user data shared among states).
+
+
+                This member function initializes the state machine state. It follows the conventions for smach.
+             Moreover, it initializes two members of the class corresponding of a subscriber and a service
+             client. These two elements are necessary to simulate the robot moving and receive a command from
+             the person.
+
+             \todo connect functions names here
+            """
             smach.State.__init__(self,
                                  outcomes=['tired','playing'],
-                                 input_keys=['move_counter_in'],
-                                 output_keys=['move_counter_out'])
-            #self.give_target = rospy.Publisher('/MoveToPosition', Pose, queue_size=10)
+                                 input_keys=['move_counter_in', 'move_person_position_in'],
+                                 output_keys=['move_counter_out', 'move_person_position_out'])
             self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
-            self.received_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.callback)
-            self.play = False
+            self.received_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.commandReceived)
+            self.person_willing = "none"
             self.person = Pose()
 
-    def callback(self, command):
+    def commandReceived(self, command):
+        """!
+        \brief commandReceived is the callback for the ROS subscriber to the topic /PlayWithRobot
+        \param command is the command received from the person willing to interact with the robot.
+
+
+            This member function checks the type of command that is received (only play is awailable in
+        this context but other commands could be configurated). After it stores the position of the person
+        willing to interact with the robot and it prints a log informing about what was received.
+        """
         if command.command.data == "play" :
-            self.play = True
+            self.person_willing = command.command.data
             self.person.position.x = command.position.position.x
             self.person.position.y = command.position.position.y
-            print('Received command from a person in : ', self.person.position.x, ', ' , self.person.position.y)
+            print('Received command : ', command.command.data, ' from a person in : ', self.person.position.x, ', ' , self.person.position.y)
 
     def execute(self, userdata):
-       while not rospy.is_shutdown():
-           if self.play :
-               self.play  = False
-               return 'playing'
-           if tired(userdata.move_counter_in) :
-               print('Robot is tired of moving...')
-               return 'tired'
-           else :
-               userdata.move_counter_out = userdata.move_counter_in + 1
-               t = Pose()
-               t.position.x = random.randint(0, width)
-               t.position.y = random.randint(0, height)
-               rospy.wait_for_service('/MoveToPosition')
-               try:
-                   print('Moving to a random position')
-                   self.reach_position(t)
-               except rospy.ServiceException as e:
-                   print("Service call failed: %s"%e)
+        """!
+        \brief execute is main member function of the class, containing the intended behavior
+        \param userdata is data exchanged among states.
+        \return a string consisting of the state outcome
+
+            This member function is responsible of simulating the Move behavior for the robot.
+        First it checks if the person has commanded something, in which case it returns the state 'playing'
+        in order to change the state into Play.
+        Secondly it checks if the robot is "tired". In a positive case it returns a string containing 'tired'
+        to make the state machine to move to the Rest state.
+        Finally, if none of the previous conditions has occurred, it increses the fatigue counter, it generates
+        a random postion and it calls the service /MoveToPosition.
+
+        This member function loops in the previusly described phases untill one of the first two cases appears.
+
+        \todo update to current actual behavior
+        """
+        while not rospy.is_shutdown():
+
+            if self.person_willing == "play" :
+                userdata.move_person_position_out = self.person
+                self.person_willing  = "none"
+                return 'playing'
+
+            if isTired(userdata.move_counter_in) :
+                print('Robot is tired of moving...')
+                return 'tired'
+            else :
+                userdata.move_counter_out = userdata.move_counter_in + 1
+                t = Pose()
+                t.position.x = random.randint(0, width)
+                t.position.y = random.randint(0, height)
+                rospy.wait_for_service('/MoveToPosition')
+                try:
+                    print('Moving to a random position')
+                    self.reach_position(t)
+                except rospy.ServiceException as e:
+                    print("Service call failed: %s"%e)
 
 
 
 
 class Rest(smach.State):
-     def __init__(self):
-             smach.State.__init__(self,
-                                  outcomes=['rested'],
-                                  input_keys=['rest_counter_in'],
-                                  output_keys=['rest_counter_out'])
-             self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
+    """!
+    \class Rest
+    \brief This class defines the state of the state machine corresponding to the robot sleeping.
 
-     def execute(self, userdata):
-         rospy.wait_for_service('/MoveToPosition')
-         try:
-             print('Going to sleep...')
-             self.reach_position(sleep_station)
-         except rospy.ServiceException as e:
-             print("Service call failed: %s"%e)
-         userdata.rest_counter_out = 0
-         return 'rested'
+    This class inheritates from smach and it consist of a state in the state machine. The state
+    that is represented here is the Rest state. In this state the robot first goes to the sleeping
+    postion (calling the service /MoveToPosition). Then it resets the fatigue level to zero, simulating
+    the robot recover of energies after having sleep.
+    """
+    def __init__(self):
+            smach.State.__init__(self,
+                                 outcomes=['rested'],
+                                 input_keys=['rest_counter_in','person_position_in'],
+                                 output_keys=['rest_counter_out'])
+            self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
+
+    def execute(self, userdata):
+        rospy.wait_for_service('/MoveToPosition')
+        try:
+            print('Going to sleep...')
+            self.reach_position(sleep_station)
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
+        userdata.rest_counter_out = 0
+        return 'rested'
 
 class Play(smach.State):
-     def __init__(self):
-             smach.State.__init__(self,
-                                  outcomes=['tired','stop_play'],
-                                  input_keys=['play_counter_in'],
-                                  output_keys=['play_counter_out'])
-             self.wait_for_gesture = rospy.ServiceProxy('/GiveGesture', GiveGesture)
+    """!
+    \class Play
+    \brief This class defines the state of the state machine corresponding to the robot playing.
 
-     def execute(self, userdata):
+    This class inheritates from smach and it consist of a state in the state machine. The state
+    that is represented here is the Play state. In this state the robot first goes to the
+    person postion, then, it waits for the person gesture.
+    This is done by calling the services /MoveToPosition and /GiveGesture. When a position
+    is returned, it moves to that position and it goes back to the person, waiting for another
+    position to reach.
 
-        for iteration in range(3):
-            if tired(userdata.play_counter_in) :
-                print('Robot is tired of playing...')
-                return 'tired'
+    This procedure is done for three times
 
-            rospy.wait_for_service('/GiveGesture')
-            try:
-                gesture = self.wait_for_gesture()
-                print('obtained', gesture.goal.position.x, gesture.goal.position.y)
-            except rospy.ServiceException as e:
-                print("Service call failed: %s"%e)
+    \todo change the nuber of times into a random variable.
+    """
+    def __init__(self):
+            smach.State.__init__(self,
+                                 outcomes=['tired','stop_play'],
+                                 input_keys=['play_counter_in', 'play_person_position_in'],
+                                 output_keys=['play_counter_out', 'play_person_position_out'])
+            self.wait_for_gesture = rospy.ServiceProxy('/GiveGesture', GiveGesture)
+            self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
 
-        return 'stop_play'
+    def execute(self, userdata):
+       rospy.wait_for_service('/MoveToPosition')
+       try:
+           print('Going to person position')
+           self.reach_position(userdata.play_person_position_in)
+       except rospy.ServiceException as e:
+           print("Service call failed: %s"%e)
+       for iteration in range(3):
+           if isTired(userdata.play_counter_in) :
+               print('Robot is tired of playing...')
+               return 'tired'
+
+           rospy.wait_for_service('/GiveGesture')
+           try:
+               gesture = self.wait_for_gesture()
+               print('obtained', gesture.goal.position.x, gesture.goal.position.y)
+               rospy.wait_for_service('/MoveToPosition')
+               try:
+                   print('Going to pointed position')
+                   self.reach_position(userdata.play_person_position_in)
+               except rospy.ServiceException as e:
+                   print("Service call failed: %s"%e)
+
+               userdata.play_counter_out = userdata.play_counter_in + 1
+           except rospy.ServiceException as e:
+               print("Service call failed: %s"%e)
+
+       return 'stop_play'
 
 
 if __name__ == "__main__":
+    """!
+    \brief __main__ intializes the ros node and the smach state machine
 
+        This functions does nothing more than initializing the node and the state machine.
+    It also retrieves the parameters from the ros parameters server and the user data
+    exchanged among the state machine states.
+
+
+    """
     rospy.init_node('robot_behavior_state_machine')
 
     width = rospy.get_param('world_width', 20)
@@ -183,6 +284,7 @@ if __name__ == "__main__":
     # Create a SMACH state machine
     sm = smach.StateMachine(outcomes=['behavior_interface'])
     sm.userdata.sm_counter = 0
+    sm.userdata.person = Pose()
 
     # Open the container
     with sm:
@@ -191,7 +293,9 @@ if __name__ == "__main__":
                                transitions={'tired':'REST',
                                             'playing':'PLAY'},
                                remapping={'move_counter_in':'sm_counter',
-                                          'move_counter_out':'sm_counter'})
+                                          'move_counter_out':'sm_counter',
+                                          'move_person_position_out':'person',
+                                          'move_person_position_in':'person'})
 
         smach.StateMachine.add('REST', Rest(),
                                transitions={'rested':'MOVE'},
@@ -202,7 +306,9 @@ if __name__ == "__main__":
                                transitions={'tired':'REST',
                                             'stop_play':'MOVE'},
                                remapping={'play_counter_in':'sm_counter',
-                                          'play_counter_out':'sm_counter'})
+                                          'play_counter_out':'sm_counter',
+                                          'play_person_position_in':'person',
+                                          'play_person_position_out':'person'})
 
 
     # Create and start the introspection server for visualization

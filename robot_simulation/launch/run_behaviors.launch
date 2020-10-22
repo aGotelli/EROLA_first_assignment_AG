@@ -10,6 +10,6 @@
 
     <node pkg="robot_simulation" type="robot_simulation_person" name="person"  output="screen"/>
 
-    <node pkg="state_machine" type="state_machine" name="state_machine"  output="screen"/>
+    <node pkg="state_machine" type="state_machine.py" name="state_machine"  output="screen"/>
 
 </launch>

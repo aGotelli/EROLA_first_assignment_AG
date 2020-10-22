@@ -1,3 +1,30 @@
+/**
+ * \file person.cpp
+ * \brief This files emulates the a person giving commands to a robot
+ * \author Andrea Gotelli
+ * \version 0.1
+ * \date 20/10/2020
+ *
+ * \param[in]
+ *
+ * Subscribes to: <BR>
+ *    ° [None]
+ *
+ * Publishes to: <BR>
+ *    ° /PlayWithRobot
+ *
+ * Service : <BR>
+ *    ° /GiveGesture
+ *
+ * Description :
+ *        This node simulates a person behavior. It publishes the command the person wants to give in
+ *      the topic: /PlayWithRobot. Moreover, it simulates a person taking time to point a position
+ *      to the robot. This is done by a service, with waits for some time to give a random position.
+ *
+ */
+
+
+
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include <geometry_msgs/Pose.h>
@@ -9,9 +36,19 @@
 #include "robot_simulation_messages/GiveGesture.h"
 
 
-int width, height;
+static int width;   ///< World discretized dimension in width.
+static int height;  ///< World discretized dimension in height.
 
-bool PointingGesture(robot_simulation_messages::GiveGesture::Request& ok,
+
+/*!
+ * \brief PointingGesture it is the service callback.
+ * \param gesture it is the pointed position.
+ * \return always true as this method cannot fail.
+ *
+ * This function creates a geometry_msgs/Pose message. It fills up the message
+ * with random value for x and y (ranging between 0 and the width, or height, respectively)
+ */
+bool PointingGesture(robot_simulation_messages::GiveGesture::Request&,
                       robot_simulation_messages::GiveGesture::Response& gesture)
 {
   gesture.goal.position.x = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(width + 1));
@@ -24,7 +61,18 @@ bool PointingGesture(robot_simulation_messages::GiveGesture::Request& ok,
 }
 
 
-
+/*!
+ * \brief main menage to collect parameters and pubishes a command constantly
+ * \param argc
+ * \param argv
+ * \return
+ *
+ *  The main function first collect all the parameters from the ros server. Then it initialises
+ * the publisher. The publisher emulates a person who call the robot to play. The person is assumed
+ * to move randomly in the environment.
+ *
+ * \todo Change te regularity in calling with a random amount of time.
+ */
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "person");

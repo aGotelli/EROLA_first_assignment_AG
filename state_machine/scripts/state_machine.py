@@ -183,17 +183,17 @@ class Move(smach.State):
                 userdata.move_person_position_out = self.person
                 self.person_willing  = "none"
                 return 'playing'
-
-            if isTired(userdata.move_fatigue_counter_in) :
-                print('Robot is tired of moving...')
-                return 'tired'
             else :
-                userdata.move_fatigue_counter_out = userdata.move_fatigue_counter_in + 1
-                t = Pose()
-                t.position.x = random.randint(0, width)
-                t.position.y = random.randint(0, height)
-                reachPosition(t, 'Moving to a random position')
-                print('Level of fatigue : ', userdata.move_fatigue_counter_in)
+                if isTired(userdata.move_fatigue_counter_in) :
+                    print('Robot is tired of moving...')
+                    return 'tired'
+                else :
+                    userdata.move_fatigue_counter_out = userdata.move_fatigue_counter_in + 1
+                    t = Pose()
+                    t.position.x = random.randint(0, width)
+                    t.position.y = random.randint(0, height)
+                    reachPosition(t, 'Moving to a random position')
+                    print('Level of fatigue : ', userdata.move_fatigue_counter_in)
 
 
 

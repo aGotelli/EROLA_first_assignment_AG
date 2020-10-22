@@ -30,6 +30,8 @@ class Position:
         self.x = 0
         self.y = 0
 
+sleep_station = Pose()
+
 class Move(smach.State):
      def __init__(self):
              smach.State.__init__(self,
@@ -57,7 +59,7 @@ class Move(smach.State):
                 return 'playing'
 
             if tired(userdata.move_counter_in) :
-                print('Robot is tired of moving... going to sleep')
+                print('Robot is tired of moving...')
                 return 'tired'
             else :
                 userdata.move_counter_out = userdata.move_counter_in + 1
@@ -67,6 +69,7 @@ class Move(smach.State):
 
                 rospy.wait_for_service('/MoveToPosition')
                 try:
+                    print('Moving to a random position')
                     self.reach_position(t)
                 except rospy.ServiceException as e:
                     print("Service call failed: %s"%e)
@@ -80,11 +83,17 @@ class Rest(smach.State):
                                   outcomes=['rested'],
                                   input_keys=['rest_counter_in'],
                                   output_keys=['rest_counter_out'])
+             self.reach_position = rospy.ServiceProxy('/MoveToPosition', MoveTo)
 
      def execute(self, userdata):
-        time.sleep(3)
-        userdata.rest_counter_out = 0
-        return 'rested'
+         rospy.wait_for_service('/MoveToPosition')
+         try:
+             print('Going to sleep...')
+             self.reach_position(sleep_station)
+         except rospy.ServiceException as e:
+             print("Service call failed: %s"%e)
+         userdata.rest_counter_out = 0
+         return 'rested'
 
 class Play(smach.State):
      def __init__(self):
@@ -98,7 +107,7 @@ class Play(smach.State):
 
         for iteration in range(3):
             if tired(userdata.play_counter_in) :
-                print('Robot is tired of playing... going to sleep')
+                print('Robot is tired of playing...')
                 return 'tired'
 
             rospy.wait_for_service('/GiveGesture')
@@ -117,6 +126,10 @@ if __name__ == "__main__":
 
     width = rospy.get_param('world_width', 20)
     height = rospy.get_param('world_height', 20)
+
+    sleep_station.position.x = rospy.get_param('sleep_x_coord', 0)
+    sleep_station.position.y = rospy.get_param('sleep_y_coord', 0)
+
 
     # Create a SMACH state machine
     sm = smach.StateMachine(outcomes=['behavior_interface'])

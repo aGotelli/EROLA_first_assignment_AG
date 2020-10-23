@@ -31,7 +31,7 @@
 
 
 /*!
- * \brief MoveToGivenPosition
+ * \brief MoveToGivenPosition is the callback for the service emulating the robot movement.
  * \param T The target postion we want to reach
  * \return
  *

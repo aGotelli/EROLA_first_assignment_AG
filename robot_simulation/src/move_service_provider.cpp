@@ -1,5 +1,5 @@
 /**
- * \file robot.cpp
+ * \file move_service_provider.cpp
  * \brief This files emulates the a robot moving in the environment
  * \author Andrea Gotelli
  * \version 0.1
@@ -44,8 +44,11 @@
 bool MoveToGivenPosition(robot_simulation_messages::MoveToRequest& T,
                           robot_simulation_messages::MoveToResponse&)
 {
+  //  Wait for some time to simulate the robot moving to the position
   ros::Duration waiting_time(3);
   waiting_time.sleep();
+
+  //  Log the information that the position is reached
   ROS_INFO_STREAM("Position reached : " << T.goal.position.x << ", " << T.goal.position.y);
   return true;
 }
@@ -55,22 +58,32 @@ bool MoveToGivenPosition(robot_simulation_messages::MoveToRequest& T,
  * \brief main Initilize the ros node and the service proder
  * \param argc
  * \param argv
- * \return
+ *
  */
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "robot");
-  ros::NodeHandle nh;
+  //  Initialize the ROS node
+  ros::init(argc, argv, "move_service_provider");
 
-  ros::ServiceServer reach_position = nh.advertiseService("/MoveToPosition", MoveToGivenPosition);
-//  ros::Subscriber receivedTarget = nh.subscribe<geometry_msgs::Pose>("/MoveToPosition", 10, move1);
+  //  Declaration of a global node handle
+  ros::NodeHandle nh_glob;
 
+  //  Definition of the service provider to simulate the robot moving
+  ros::ServiceServer reach_position = nh_glob.advertiseService("/MoveToPosition", MoveToGivenPosition);
+
+  //  Definition of the node frame rate
   ros::Rate frame_rate = ros::Rate(50.0);
 
+  //  Main loop
   while(ros::ok()) {
+
+    //  Check for new messages
     ros::spinOnce();
 
+    //  Waits
     frame_rate.sleep();
   }
+
+  return 0;
 }
 

@@ -144,7 +144,7 @@ int main(int argc, char **argv)
     //  Compute elapsed time
     current_time = ros::Time::now();
     time_elapsed = current_time - prev_time;
-    prev_time = ros::Time::now();
+
 
     //  Check that deseired time has elapsed and the robot is in Move state (neither in Rest not in Play)
     if( time_elapsed.toSec() >= 10 && state_machine_status == "MOVE") {
@@ -162,6 +162,9 @@ int main(int argc, char **argv)
       //  Publish the information to the robot
       ROS_INFO_STREAM("A person is commanding play");
       command_pub.publish(person);
+
+      //  Reset time only after having published the time
+      prev_time = ros::Time::now();
 
 
     }

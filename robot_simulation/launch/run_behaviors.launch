@@ -6,7 +6,7 @@
     <param name="sleep_x_coord" value="5" />
     <param name="sleep_y_coord" value="6" />
 
-    <node pkg="robot_simulation" type="robot_simulation_robot" name="robot" output="screen"/>
+    <node pkg="robot_simulation" type="robot_simulation_robot" name="move_service_provider" output="screen"/>
 
     <node pkg="robot_simulation" type="robot_simulation_person" name="person"  output="screen"/>
 

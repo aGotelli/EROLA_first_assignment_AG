@@ -152,8 +152,8 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(${PROJECT_NAME}_robot src/robot.cpp)
-target_link_libraries(${PROJECT_NAME}_robot
+add_executable(${PROJECT_NAME}_move_service_provider src/move_service_provider.cpp)
+target_link_libraries(${PROJECT_NAME}_move_service_provider
    ${catkin_LIBRARIES}
  )
 

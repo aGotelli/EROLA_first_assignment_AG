@@ -139,11 +139,14 @@ class Move(smach.State):
                                  outcomes=['tired','playing'],
                                  input_keys=['move_fatigue_counter_in', 'move_person_position_in'],
                                  output_keys=['move_fatigue_counter_out', 'move_person_position_out'])
-            self.person_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.commandReceived)
+            #   Definition of the ROS subscriber to account if the person wish to interact with the robot
+            self.person_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.commandReceived)           
+            #   Definition of the string containing what the person has commanded
             self.person_willing = "none"
+            #   Definition of the person position using geometry_msgs/Pose
             self.person = Pose()
 
-    def commandReceived(self, person):
+    def commandReceived(self, received_person):
         """!
         \brief commandReceived is the callback for the ROS subscriber to the topic /PlayWithRobot
         \param command is the command received from the person willing to interact with the robot.
@@ -153,11 +156,13 @@ class Move(smach.State):
         this context but other commands could be configurated). After it stores the position of the person
         willing to interact with the robot and it prints a log informing about what was received.
         """
-        if person.command.data == "play" :
-            self.person_willing = person.command.data
-            self.person.position.x = person.position.position.x
-            self.person.position.y = person.position.position.y
-            print('Received command : ', person.command.data, ' from a person in : ', self.person.position.x, ', ' , self.person.position.y)
+        #   Print a information about the received message
+        print('Received command : ', received_person.command.data, ' from a person in : ', received_person.position.position.x, ', ' , received_person.position.position.y)
+        #   Store the information about the received command
+        self.person_willing = received_person.command.data
+        #   Store the person position
+        self.person.position = received_person.position.position
+
 
     def execute(self, userdata):
         """!
@@ -177,22 +182,36 @@ class Move(smach.State):
 
         \todo update to current actual behavior
         """
+        #   Main loop
         while not rospy.is_shutdown():
 
+            #   Check if the person has commanded play
             if self.person_willing == "play" :
+                #   Prepare the userdata to share the person position
                 userdata.move_person_position_out = self.person
+                #   Reset the person willing
                 self.person_willing  = "none"
+                #   Return 'plying' to change the state
                 return 'playing'
             else :
+                #   Check is the robot is tired
                 if isTired(userdata.move_fatigue_counter_in) :
+                    #   Print a log to inform about the fact that the robot is tired
                     print('Robot is tired of moving...')
+                    #   Return 'tired' to change the state
                     return 'tired'
                 else :
+                    #   If none of the previous was true, then continue with the Move behavior
+                    #   Declare a geometry_msgs/Pose for the random position
+                    random_ = Pose()
+                    #   Define the random components (x, y) of this random position
+                    random_.position.x = random.randint(0, width)
+                    random_.position.y = random.randint(0, height)
+                    #   Call the service to reach this position
+                    reachPosition(random_, 'Moving to a random position')
+                    #   Increment the level of the robot fatigue
                     userdata.move_fatigue_counter_out = userdata.move_fatigue_counter_in + 1
-                    t = Pose()
-                    t.position.x = random.randint(0, width)
-                    t.position.y = random.randint(0, height)
-                    reachPosition(t, 'Moving to a random position')
+                    #   Print a log to show the level of fatigue
                     print('Level of fatigue : ', userdata.move_fatigue_counter_in)
 
 
@@ -215,8 +234,11 @@ class Rest(smach.State):
                                  output_keys=['rest_fatigue_counter_out'])
 
     def execute(self, userdata):
+        #   Call the service to reach the position corresponding to the sleeping position
         reachPosition(sleep_station, 'Going to sleep...')
+        #   Reset the fatigue counter afther the robot is well rested
         userdata.rest_fatigue_counter_out = 0
+        #   Return 'rested' to change the state
         return 'rested'
 
 
@@ -244,25 +266,35 @@ class Play(smach.State):
             self.wait_for_gesture = rospy.ServiceProxy('/GiveGesture', GiveGesture)
 
     def execute(self, userdata):
-       reachPosition(userdata.play_person_position_in, 'Going to person position')
-       userdata.play_fatigue_counter_out = userdata.play_fatigue_counter_in + 1
-       print('Level of fatigue : ', userdata.play_fatigue_counter_in)
-       for iteration in range(3):
-           if isTired(userdata.play_fatigue_counter_in) :
-               print('Robot is tired of playing...')
-               return 'tired'
+        #   Call the service to reach the position where the person is
+        reachPosition(userdata.play_person_position_in, 'Going to person position')
+        #   Increment the counter for the fatigue as the robot has moved
+        userdata.play_fatigue_counter_out = userdata.play_fatigue_counter_in + 1
+        #   Print a log showing the current level of fatigue
+        print('Level of fatigue : ', userdata.play_fatigue_counter_in)
+        #   Iterate in the Play behavior
+        for iteration in range(3):
+            #   First check if the robot is tired
+            if isTired(userdata.play_fatigue_counter_in) :
+                #   Print a log to inform about this event
+                print('Robot is tired of playing...')
+                #   Return 'tired' to change the state
+                return 'tired'
 
-           rospy.wait_for_service('/GiveGesture')
-           try:
-               gesture = self.wait_for_gesture()
-               print('obtained', gesture.goal.position.x, gesture.goal.position.y)
-           except rospy.ServiceException as e:
-               print("Service call failed: %s"%e)
+            #   Else if the robot is not tired, wait for the gesture
+            rospy.wait_for_service('/GiveGesture')
+            try:
+                gesture = self.wait_for_gesture()
+                print('obtained', gesture.goal.position.x, gesture.goal.position.y)
+            except rospy.ServiceException as e:
+                print("Service call failed: %s"%e)
 
-           reachPosition(gesture.goal, 'Going to pointed position')
-           userdata.play_fatigue_counter_out = userdata.play_fatigue_counter_in + 1
-           print('Level of fatigue : ', userdata.play_fatigue_counter_in)
-       return 'stop_play'
+            #   Call the service to reach the pointed position
+            reachPosition(gesture.goal, 'Going to pointed position')
+            #   Increase the fatigue counter as the robot haa moved
+            userdata.play_fatigue_counter_out = userdata.play_fatigue_counter_in + 1
+            print('Level of fatigue : ', userdata.play_fatigue_counter_in)
+        return 'stop_play'
 
 
 if __name__ == "__main__":
@@ -275,12 +307,14 @@ if __name__ == "__main__":
 
 
     """
+    #   Initialization of the ros node
     rospy.init_node('robot_behavior_state_machine')
 
-
+    #   Retrieve the parameter about the world dimensions
     width = rospy.get_param('world_width', 20)
     height = rospy.get_param('world_height', 20)
 
+    #   Retrieve parameters about the sleeping position
     sleep_station.position.x = rospy.get_param('sleep_x_coord', 0)
     sleep_station.position.y = rospy.get_param('sleep_y_coord', 0)
 

@@ -316,7 +316,7 @@ if __name__ == "__main__":
 
 
     # Create and start the introspection server for visualization
-    sis = smach_ros.IntrospectionServer('server_name', sm, '/SM_ROOT')
+    sis = smach_ros.IntrospectionServer('robot_behavior_state_machine', sm, '/SM_ROOT')
     sis.start()
 
     # Execute the state machine

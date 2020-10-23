@@ -10,8 +10,8 @@
  *
  * \details
  *
- * Subscribes to: <BR>
- *    ° [None]
+ * Subscribes to: the topic where the state machine publishes the current state
+ *    ° /robot_behavior_state_machine/smach/container_status
  *
  * Publishes to: <BR>
  *    ° /PlayWithRobot
@@ -21,7 +21,10 @@
  *
  * Description :
  *        This node simulates a person behavior. It publishes the command the person wants to give in
- *      the topic: /PlayWithRobot. Moreover, it simulates a person taking time to point a position
+ *      the topic: /PlayWithRobot. Before publishing the command, it check that the robot is neither
+ *      in the Rest nor in the Play behavior already. This is done by comparing the state that has been
+ *      published by the state machine.
+ *      Moreover, it simulates a person taking time to point a position
  *      to the robot. This is done by a service, with waits for some time to give a random position.
  *
  */
@@ -55,19 +58,35 @@ static int height;  ///< World discretized dimension in height.
 bool PointingGesture(robot_simulation_messages::GiveGesture::Request&,
                       robot_simulation_messages::GiveGesture::Response& gesture)
 {
+  //  Create the pointed location as a random position
   gesture.goal.position.x = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(width + 1));
   gesture.goal.position.y = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(height + 1));
+
+  //  Log of the intention of chosing the position
   ROS_INFO_STREAM("Deciding location to point...");
+
+  //  Wait to simulate the motion
   ros::Duration waiting_time(3);
   waiting_time.sleep();
+
+  //  Log to inform that position has been chosen
   ROS_INFO_STREAM("Pointed location decided");
   return true;
 }
 
-static smach_msgs::SmachContainerStatus state_machine_status;
+//  Static container to store the callback argument
+static std::string state_machine_status;
+
+/*!
+ * \brief SaveStatus is the callback for the subscriber of the topic /robot_behavior_state_machine/smach/container_status
+ * \param state_machine_status_ is the message containing the stateus of the state machine
+ *
+ * This functions does nothing but saving the state that was received in the message. The state is expressed
+ * by a string that can be: MOVE, PLAY or REST;
+ */
 void SaveStatus(smach_msgs::SmachContainerStatus::ConstPtr state_machine_status_)
 {
-  state_machine_status = (*state_machine_status_);
+  state_machine_status = state_machine_status_->active_states.front();
 }
 
 
@@ -85,43 +104,67 @@ void SaveStatus(smach_msgs::SmachContainerStatus::ConstPtr state_machine_status_
  */
 int main(int argc, char **argv)
 {
+
+  //  Initialize ros node
   ros::init(argc, argv, "person");
+
+  //  Initialize for random number generation
   srand(time(nullptr));
 
+  //  Declare a global node handler
   ros::NodeHandle nh_glob;
 
+  //  Retireve the world prameters
   nh_glob.param("world_width", width, 20);
   nh_glob.param("world_height", height, 20);
 
+  //  Definition the ROS publisher to publish the command to the robot
   ros::Publisher command_pub = nh_glob.advertise<robot_simulation_messages::PersonCalling>("/PlayWithRobot", 10);
-  ros::Subscriber state_machine_status_sub = nh_glob.subscribe<smach_msgs::SmachContainerStatus>("/server_name/smach/container_status", 1, SaveStatus);
+
+  //  Definition of the subscriber to obtain the current state of the state machine
+  ros::Subscriber state_machine_status_sub = nh_glob.subscribe<smach_msgs::SmachContainerStatus>("/robot_behavior_state_machine/smach/container_status", 1, SaveStatus);
+
+  //  Definition of the service provider to provide the robot of a random pointed position.
   ros::ServiceServer give_gesture = nh_glob.advertiseService("/GiveGesture", PointingGesture);
+
+  //  Definition of the frame rate for this node
   ros::Rate loop_rate(50);
 
+  //  Time handle section
   ros::Time current_time = ros::Time::now();
   ros::Time prev_time = current_time;
   ros::Duration time_elapsed;
+
+  //  Main loop
   while (ros::ok())
   {
+    //  Obtain published messages
     ros::spinOnce();
+
+    //  Compute elapsed time
     current_time = ros::Time::now();
     time_elapsed = current_time - prev_time;
+    prev_time = ros::Time::now();
+
+    //  Check that deseired time has elapsed and the robot is in Move state (neither in Rest not in Play)
+    if( time_elapsed.toSec() >= 10 && state_machine_status == "MOVE") {
+
+      //  Declaration of the command to publish to the robot
+      robot_simulation_messages::PersonCalling person;
+
+      //  Definition of the given command
+      person.command.data = "play";
+
+      //  Definition of the random position where the person calls the robot to play
+      person.position.position.x = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(width + 1));
+      person.position.position.y = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(height + 1));
+
+      //  Publish the information to the robot
+      ROS_INFO_STREAM("A person is commanding play");
+      command_pub.publish(person);
 
 
-    if( time_elapsed.toSec() >= 10 && state_machine_status.active_states.front() != "MOVE") {
-
-      //  Check that deseired time has elapsed and the robot is in Move state (neither in Rest not in Play)
-      robot_simulation_messages::PersonCalling command;
-      command.command.data = "play";
-
-      command.position.position.x = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(width + 1));
-      command.position.position.y = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(height + 1));
-
-      command_pub.publish(command);
-      prev_time = ros::Time::now();
-      ROS_INFO_STREAM("commanding play");
     }
-
 
     loop_rate.sleep();
   }

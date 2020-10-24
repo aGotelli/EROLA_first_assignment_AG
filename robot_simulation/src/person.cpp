@@ -98,9 +98,10 @@ void SaveStatus(smach_msgs::SmachContainerStatus::ConstPtr state_machine_status_
  *
  *  The main function first collect all the parameters from the ros server. Then it initialises
  * the publisher. The publisher emulates a person who call the robot to play. The person is assumed
- * to move randomly in the environment.
+ * to move randomly in the environment.The person calls the robot to play in an interval indicated
+ * with the use of the parameters.
  *
- * \todo Change te regularity in calling with a random amount of time.
+ *
  */
 int main(int argc, char **argv)
 {
@@ -115,8 +116,14 @@ int main(int argc, char **argv)
   ros::NodeHandle nh_glob;
 
   //  Retireve the world prameters
-  nh_glob.param("world_width", width, 20);
-  nh_glob.param("world_height", height, 20);
+  nh_glob.param("/world_width", width, 20);
+  nh_glob.param("/world_height", height, 20);
+
+  int min_time = 0, max_time = 0;
+  nh_glob.param("/minum_time_btw_calls", min_time, 15);
+  nh_glob.param("/maximum_time_btw_calls", max_time, 30);
+
+  ROS_INFO_STREAM("times : " << min_time << " , " << max_time);
 
   //  Definition the ROS publisher to publish the command to the robot
   ros::Publisher command_pub = nh_glob.advertise<robot_simulation_messages::PersonCalling>("/PlayWithRobot", 10);
@@ -135,6 +142,9 @@ int main(int argc, char **argv)
   ros::Time prev_time = current_time;
   ros::Duration time_elapsed;
 
+  //  Set the time for the first call of play
+  int time_to_wait = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(max_time - min_time + 1) + min_time);
+  ROS_INFO_STREAM("Time to wait : " << time_to_wait);
   //  Main loop
   while (ros::ok())
   {
@@ -147,7 +157,7 @@ int main(int argc, char **argv)
 
 
     //  Check that deseired time has elapsed and the robot is in Move state (neither in Rest not in Play)
-    if( time_elapsed.toSec() >= 10 && state_machine_status == "MOVE") {
+    if( time_elapsed.toSec() >= time_to_wait && state_machine_status == "MOVE") {
 
       //  Declaration of the command to publish to the robot
       robot_simulation_messages::PersonCalling person;
@@ -166,6 +176,8 @@ int main(int argc, char **argv)
       //  Reset time only after having published the time
       prev_time = ros::Time::now();
 
+      //  Randomly reset the time for the next call
+      time_to_wait = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(max_time - min_time + 1) + min_time);
 
     }
 

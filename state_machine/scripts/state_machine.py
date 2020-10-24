@@ -43,9 +43,6 @@ Description :
           position of the person (which is contained into the message) and waits for a gesture. The
           gesture is indeed provided by the service /GiveGesture.
 
-    \todo talk about paramets as fatigue ecc
-
-    \todo problem of having two commands play if one not finished the other comes (this could be a problem)
 """
 
 
@@ -87,8 +84,8 @@ def reachPosition(pose, info):
         print("Service call failed: %s"%e)
 
 
-
-def isTired(level):
+fatigue_threshold = 0
+def isTired(fatigue_level):
     """!
     \brief isTired check the level of fatigue to establish if the robot is "tired"
     \param level [integer] is the current level of fatigue of the robot.
@@ -96,11 +93,9 @@ def isTired(level):
 
     This function compares the level of fatigue with and hard threshold defined within
     the function.
-
-    \todo Change the threshold to be a parameter in the launch file.
     """
     threshold = 5
-    if level >= threshold:
+    if fatigue_level >= fatigue_threshold:
         return True
     else :
         return False
@@ -179,8 +174,6 @@ class Move(smach.State):
         a random postion and it calls the service /MoveToPosition.
 
         This member function loops in the previusly described phases untill one of the first two cases appears.
-
-        \todo update to current actual behavior
         """
         #   Main loop
         while not rospy.is_shutdown():
@@ -272,8 +265,12 @@ class Play(smach.State):
         userdata.play_fatigue_counter_out = userdata.play_fatigue_counter_in + 1
         #   Print a log showing the current level of fatigue
         print('Level of fatigue : ', userdata.play_fatigue_counter_in)
+
+        #number_of_iterations = 3
+        #   Random number of times to play between 1 and 4
+        number_of_iterations = randint(1, 4)
         #   Iterate in the Play behavior
-        for iteration in range(3):
+        for iteration in range(number_of_iterations):
             #   First check if the robot is tired
             if isTired(userdata.play_fatigue_counter_in) :
                 #   Print a log to inform about this event
@@ -317,6 +314,8 @@ if __name__ == "__main__":
     #   Retrieve parameters about the sleeping position
     sleep_station.position.x = rospy.get_param('sleep_x_coord', 0)
     sleep_station.position.y = rospy.get_param('sleep_y_coord', 0)
+
+    fatigue_threshold = rospy.get_param('fatigue_threshold', 5)
 
 
     # Create a SMACH state machine

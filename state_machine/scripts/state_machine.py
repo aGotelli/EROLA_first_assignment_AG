@@ -268,7 +268,7 @@ class Play(smach.State):
 
         #number_of_iterations = 3
         #   Random number of times to play between 1 and 4
-        number_of_iterations = randint(1, 4)
+        number_of_iterations = random.randint(1, 4)
         #   Iterate in the Play behavior
         for iteration in range(number_of_iterations):
             #   First check if the robot is tired
@@ -306,6 +306,8 @@ if __name__ == "__main__":
     """
     #   Initialization of the ros node
     rospy.init_node('robot_behavior_state_machine')
+
+    random.seed()
 
     #   Retrieve the parameter about the world dimensions
     width = rospy.get_param('world_width', 20)

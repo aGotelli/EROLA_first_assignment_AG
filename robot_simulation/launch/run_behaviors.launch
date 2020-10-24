@@ -1,15 +1,22 @@
 <launch>
-<!-- Parameters defining the discretized world width and height -->
+    <!-- Parameters defining the discretized world width and height -->
     <param name="world_width"     value="20" />
     <param name="world_height"    value="20" />
 
+    <!-- Parameters to define the sleeping position -->
     <param name="sleep_x_coord" value="5" />
     <param name="sleep_y_coord" value="6" />
 
+    <!-- Parameter to define the robot maximul level of efforts before going to sleep -->
+    <param name="fatigue_threshold" value="5" />
+
+    <!-- Launch the node responsible of providing the service for the movement -->
     <node pkg="robot_simulation" type="robot_simulation_robot" name="move_service_provider" output="screen"/>
 
+    <!-- Launch the node simulating the person -->
     <node pkg="robot_simulation" type="robot_simulation_person" name="person"  output="screen"/>
 
+    <!-- Launch the node for the state machine, which controls the robot behaviors -->
     <node pkg="state_machine" type="state_machine.py" name="state_machine"  output="screen"/>
 
 </launch>

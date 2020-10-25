@@ -132,7 +132,7 @@ int main(int argc, char **argv)
   ros::Subscriber state_machine_status_sub = nh_glob.subscribe<smach_msgs::SmachContainerStatus>("/robot_behavior_state_machine/smach/container_status", 1, SaveStatus);
 
   //  Definition of the service provider to provide the robot of a random pointed position.
-  ros::ServiceServer give_gesture = nh_glob.advertiseService("/GiveGesture", PointingGesture);
+  ros::ServiceServer give_gesture = nh_glob.advertiseService("/Gesture", PointingGesture);
 
   //  Definition of the frame rate for this node
   ros::Rate loop_rate(50);

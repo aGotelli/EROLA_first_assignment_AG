@@ -279,7 +279,7 @@ class Play(smach.State):
                 return 'tired'
 
             #   Else if the robot is not tired, wait for the gesture
-            rospy.wait_for_service('/GiveGesture')
+            rospy.wait_for_service('/Gesture')
             try:
                 gesture = self.wait_for_gesture()
                 print('obtained', gesture.goal.position.x, gesture.goal.position.y)

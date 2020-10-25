@@ -160,18 +160,18 @@ int main(int argc, char **argv)
     if( time_elapsed.toSec() >= time_to_wait && state_machine_status == "MOVE") {
 
       //  Declaration of the command to publish to the robot
-      robot_simulation_messages::PersonCalling person;
+      robot_simulation_messages::PersonCalling person_command;
 
       //  Definition of the given command
-      person.command.data = "play";
+      person_command.command.data = "play";
 
       //  Definition of the random position where the person calls the robot to play
-      person.position.position.x = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(width + 1));
-      person.position.position.y = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(height + 1));
+      person_command.position.position.x = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(width + 1));
+      person_command.position.position.y = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(height + 1));
 
       //  Publish the information to the robot
       ROS_INFO_STREAM("A person is commanding play");
-      command_pub.publish(person);
+      command_pub.publish(person_command);
 
       //  Reset time only after having published the time
       prev_time = ros::Time::now();

@@ -18,6 +18,10 @@ This file aim to explain how to move inside this project. It should be read befo
 * [Packages and Files List](#S-PFL)
 * [Installation and Running Procedure](#S-IRP)
 * [Working Hypothesis](#S-WH)
+* [System’s Features](#S-SF)
+* [System’s Limitations](#S-SL)
+* [Possible Technical Improvements](#S-PTI)
+* [Authors and Contacts](#S-AC)
 
 
 
@@ -141,7 +145,7 @@ This project was developed with the aim of being possible to implement, improve 
 * Implement some graphic interface in order to see the robot in the environment as well as the person and the pointed location.
 * Implement a motion control in order to substitute the idealization of the motion with an actual motion control of the robot.
 * Introduce the possibility for the user to interact directly with the application, for example through the keyboard.
-* Change the interfaces which make use of service in order to favour non blocking interfaces. 
+* Change the interfaces which make use of service in order to favour non blocking interfaces.
 
 # <a name="S-AC"></a>Authors and Contacts
 This project was relized by Andrea Gotelli.

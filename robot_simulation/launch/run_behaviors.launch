@@ -7,6 +7,10 @@
     <param name="sleep_x_coord" value="5" />
     <param name="sleep_y_coord" value="6" />
 
+    <!-- Parameters to define the interval where the person can call the robot to play -->
+    <param name="minum_time_btw_calls"      value="15" />
+    <param name="maximum_time_btw_calls"    value="30" />
+
     <!-- Parameter to define the robot maximul level of efforts before going to sleep -->
     <param name="fatigue_threshold" value="5" />
 

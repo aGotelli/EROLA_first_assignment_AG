@@ -35,17 +35,20 @@
  * \param T The target postion we want to reach
  * \return
  *
- * This function is the service callback. When it executed it waits for a specific amount of time
- * in order to simulate a robot moving to a derminate position.
+ * This function is the service callback. When it executed it waits for some time
+ * in order to simulate a robot moving to a derminate position. The time varies randomly
+ * in an interval from 3 to 6 seconds.
  *
- * \todo Change the fixed time to a time that variates randomly
  *
  */
 bool MoveToGivenPosition(robot_simulation_messages::MoveToRequest& T,
                           robot_simulation_messages::MoveToResponse&)
 {
   //  Wait for some time to simulate the robot moving to the position
-  ros::Duration waiting_time(3);
+  int min_time = 3;
+  int max_time = 6;
+  int travelling_time = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(max_time - min_time + 1) + min_time);
+  ros::Duration waiting_time(travelling_time);
   waiting_time.sleep();
 
   //  Log the information that the position is reached

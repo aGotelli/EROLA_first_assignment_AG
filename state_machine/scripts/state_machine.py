@@ -20,6 +20,7 @@ Publishes to: <BR>
 
 Service : <BR>
     ° /GiveGesture as client, it waits for the gesture to come.
+
     ° /MoveToPosition as cliet, ask to simulate the motion to the given position
 
 Description :
@@ -31,17 +32,17 @@ Description :
 
     The actions and the transitions are explained below:
 
-        ° The robot starts with the Move behavior, which makes the robot to move randomly in
-          the environment. In fact, a random postion (within the limit of the world) is
-          generated and passed to the service /MoveToPosition which simulates the motion.
+    ° The robot starts with the Move behavior, which makes the robot to move randomly in
+      the environment. In fact, a random postion (within the limit of the world) is
+      generated and passed to the service /MoveToPosition which simulates the motion.
 
-        ° When the robot is tired it goes in the Rest behavior. By doing this, it will first
-          move to the sleeping postion and it will wait some time before waiking up. Here, again,
-          to reach the position the service /MoveToPosition is called.
+    ° When the robot is tired it goes in the Rest behavior. By doing this, it will first
+      move to the sleeping postion and it will wait some time before waiking up. Here, again,
+      to reach the position the service /MoveToPosition is called.
 
-        ° When the person gives a command (throught the topic /PlayWithRobot) the robot reaches the
-          position of the person (which is contained into the message) and waits for a gesture. The
-          gesture is indeed provided by the service /GiveGesture.
+    ° When the person gives a command (throught the topic /PlayWithRobot) the robot reaches the
+      position of the person (which is contained into the message) and waits for a gesture. The
+      gesture is indeed provided by the service /GiveGesture.
 
 """
 
@@ -64,6 +65,8 @@ from robot_simulation_messages.srv import GiveGesture
 
 width = 0
 height = 0
+
+sleep_station = Pose()
 
 move_to_pos_client = rospy.ServiceProxy('/MoveToPosition', MoveTo)
 
@@ -101,7 +104,7 @@ def isTired(fatigue_level):
         return False
 
 
-sleep_station = Pose()
+
 
 class Move(smach.State):
     """!

@@ -1,3 +1,4 @@
+#   Documentation test
 bool ok
 ---
 geometry_msgs/Pose goal

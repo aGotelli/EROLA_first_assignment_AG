@@ -1,0 +1,8 @@
+/*! \file PersonCalling.msg
+ *  \brief Definition of a local ROS message.
+ *
+ *  Message definition allowing to easily exchange information abot the person,
+ *  such as the command and the position.
+ *  \param command string containing the command of the person.
+ *  \param position geometry_msgs Pose element corresponding to the person position.
+ */

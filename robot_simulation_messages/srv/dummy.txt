@@ -1,0 +1,10 @@
+/*! \file GiveGesture.srv
+ *  \brief Service message file for the Gesture service.
+ *  \param ok boolen to ping the service provider
+ *  \param goal geometry_msgs Pose element corresponding to the pointed location
+ */
+
+/*! \file MoveTo.srv
+ *  \brief Service message file for the MoveToPosition service.
+ *  \param goal geometry_msgs Pose element containing the position to reach
+ */

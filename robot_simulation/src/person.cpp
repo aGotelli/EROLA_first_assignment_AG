@@ -5,12 +5,14 @@
  * \version 0.1
  * \date 20/10/2020
  *
- * \param [in] world_width
- * \param [in] world_height
+ * \param [in] world_width Define the width of the discretized world.
+ * \param [in] world_height Define the height of the discretized world.
+ * \param [in] minum_time_btw_calls Define the minimum time between two calls to play
+ * \param [in] maximum_time_btw_calls Define the maximum time between two calls to play
  *
  * \details
  *
- * Subscribes to: the topic where the state machine publishes the current state
+ * Subscribes to: <BR>
  *    ° /robot_behavior_state_machine/smach/container_status
  *
  * Publishes to: <BR>
@@ -20,12 +22,17 @@
  *    ° /GiveGesture
  *
  * Description :
- *        This node simulates a person behavior. It publishes the command the person wants to give in
- *      the topic: /PlayWithRobot. Before publishing the command, it check that the robot is neither
- *      in the Rest nor in the Play behavior already. This is done by comparing the state that has been
- *      published by the state machine.
- *      Moreover, it simulates a person taking time to point a position
- *      to the robot. This is done by a service, with waits for some time to give a random position.
+ *
+ * This node simulates a person behavior. The person is assumed to move randomly in the environment.
+ * The person calls the robot to play in an interval indicated with the use of the parameters:
+ * minum_time_btw_calls and maximum_time_btw_calls.
+ * It publishes the command the person wants to give in
+ * the topic: /PlayWithRobot. Before publishing the command, it check that the robot is neither
+ * in the Rest nor in the Play behavior already. This is done by comparing the state that has been
+ * published by the state machine published in the topic /robot_behavior_state_machine/smach/container_status.
+ * Moreover, it simulates a person taking time to point a position
+ * to the robot. This is done in the service callback, which waits for some time before giving
+ * the random position.
  *
  */
 
@@ -52,7 +59,7 @@ static int height;  ///< World discretized dimension in height.
  * \param gesture it is the pointed position.
  * \return always true as this method cannot fail.
  *
- * This function creates a geometry_msgs/Pose message. It fills up the message
+ * This function creates a geometry_msgs/Pose message. It fills up the response message
  * with random value for x and y (ranging between 0 and the width, or height, respectively)
  */
 bool PointingGesture(robot_simulation_messages::GiveGesture::Request&,
@@ -100,9 +107,7 @@ void SaveStatus(smach_msgs::SmachContainerStatus::ConstPtr state_machine_status_
  * \return
  *
  *  The main function first collect all the parameters from the ros server. Then it initialises
- * the publisher. The publisher emulates a person who call the robot to play. The person is assumed
- * to move randomly in the environment.The person calls the robot to play in an interval indicated
- * with the use of the parameters.
+ * the publisher that emulates a person who call the robot to play.
  *
  *
  */
@@ -126,7 +131,6 @@ int main(int argc, char **argv)
   nh_glob.param("/minum_time_btw_calls", min_time, 15);
   nh_glob.param("/maximum_time_btw_calls", max_time, 30);
 
-  ROS_INFO_STREAM("times : " << min_time << " , " << max_time);
 
   //  Definition the ROS publisher to publish the command to the robot
   ros::Publisher command_pub = nh_glob.advertise<robot_simulation_messages::PersonCalling>("/PlayWithRobot", 10);

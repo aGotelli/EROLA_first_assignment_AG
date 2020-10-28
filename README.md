@@ -135,7 +135,9 @@ Moreover, the node responsible to simulate the person has some insight about the
 # <a name="S-SF"></a>System’s limitations
 The system is not currently able to simulate a real motion, it just waits for some random time before ideally reach the desired position. Moreover, the system is able to simulate only one interaction with the person through the command "play". Moreover, some components use services as interfaces. This leads to the problem that if a service provider component blocks while providing the response the whole application resents of the situation. For example, if a service server crashes, than the call to that server will lead to an error or other problem.
 
-Finally, some parameters can be defined in the launch file but there are no tools to chek the user's settings. Usually, when there some possibility for the user to chose parameters, there should be implemented an error handling section in order to prevent the user to set inconsistent parameters.
+Moreover, some parameters can be defined in the launch file but there are no tools to chek the user's settings. Usually, when there some possibility for the user to chose parameters, there should be implemented an error handling section in order to prevent the user to set inconsistent parameters.
+
+Finally, there is no implementation of the smach_viewer interface. This interface allows a more user friendly interpretation but it is not supported in python3 which is used in Ubuntu 20.04.
 
 
 # <a name="S-PTI"></a>Possible Technical Improvements
@@ -146,6 +148,7 @@ This project was developed with the aim of being possible to implement, improve 
 * Introduce the possibility for the user to interact directly with the application, for example through the keyboard.
 * Change the interfaces which make use of service in order to favour non blocking interfaces.
 * Implement other possible command and realise different outcome for the [Move](#STD-MOVE) state.
+* Add the smach_viewer interface once solved the problem of integration or when the package itself is ported in python3.
 
 # <a name="S-AC"></a>Authors and Contacts
 This project was relized by Andrea Gotelli.

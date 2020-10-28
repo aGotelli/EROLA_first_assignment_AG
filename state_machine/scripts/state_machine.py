@@ -77,8 +77,8 @@ move_to_pos_client = rospy.ServiceProxy('/MoveToPosition', MoveTo)
 #    \param pose [geometry_msgs/Pose] is the position the robot should reach.
 #    \param info [string] is information to display when approaching the position.
 #
-#    This function calls the service /MoveToPosition and prints out a string. Tts usage should
-#    preferredn insted of pasting the same lines of code around.
+#    This function calls the service /MoveToPosition and prints out a string. Its usage should
+#    preferred insted of pasting the same lines of code around.
 def reachPosition(pose, info):
     rospy.wait_for_service('/MoveToPosition')
     try:
@@ -130,7 +130,7 @@ class Move(smach.State):
                                  input_keys=['move_fatigue_counter_in', 'move_person_position_in'],
                                  output_keys=['move_fatigue_counter_out', 'move_person_position_out'])
             #   Definition of the ROS subscriber to account if the person wish to interact with the robot
-            self.person_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.commandReceived)           
+            self.person_command = rospy.Subscriber("/PlayWithRobot", PersonCalling, self.commandReceived)
             #   Definition of the string containing what the person has commanded
             self.person_willing = "none"
             #   Definition of the person position using geometry_msgs/Pose

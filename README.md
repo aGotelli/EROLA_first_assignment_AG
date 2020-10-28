@@ -146,6 +146,7 @@ This project was developed with the aim of being possible to implement, improve 
 * Implement a motion control in order to substitute the idealization of the motion with an actual motion control of the robot.
 * Introduce the possibility for the user to interact directly with the application, for example through the keyboard.
 * Change the interfaces which make use of service in order to favour non blocking interfaces.
+* Implement other possible command and realise different outcome for the [Move](#STD-MOVE) state.
 
 # <a name="S-AC"></a>Authors and Contacts
 This project was relized by Andrea Gotelli.

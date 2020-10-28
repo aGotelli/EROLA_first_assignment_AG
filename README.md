@@ -29,11 +29,10 @@ This file aim to explain how to move inside this project. It should be read befo
 This project contains packages to simulate three behavior for a pet like robot. This simulation is based on a state machine that is implemented using the smach libraries.
 
 # <a name="S-Sofar"></a>Software Architecture
-The package is for simulating a pet like robot which has three Possible behaviors. It can move around randomly, it can interacting with the user, playing with they and it can also sleep when tired. The three states are governed using a finite state machine, which defines the transitions from one state to another. For the knowledge representation, two diagrams are implemented.
+The package is for simulating a pet like robot which has three possible behaviors. It can move around randomly, it can interact by playing with the user and it can also sleep when tired. The three states are governed using a finite state machine, which defines the transitions from one state to another. For the knowledge representation, two diagrams are implemented.
 
 * [The State Machine Diagram](#SA-SMD)
 * [The Component Diagram](#SA-CD)
-* [The Messages and parameters](SA-MSG)
 
 ## <a name="SA-SMD"></a>The State Machine Diagram
 The following figure shows the state machine diagram for this implementation, as well as some knowledge about which interfaces each state has, with respect to the rest of the architecture.
@@ -49,15 +48,15 @@ In particular, all the states will be analyzed in the following.
 
 ##### <a name="SMD-MOVE"></a>The Move behavior
 
-The robot starts in the with in the Move state, where the robot moves randomly in the environment. While moving, the robot do not perform any other activity. For this reason the movement is implemented using a ROS service, in this way the state machine ignore any information received from the outside until the position is reached. This behavior will last until one of the following happens:
+The robot starts in the in the Move state, where the robot moves randomly in the environment. While moving, the robot do not perform any other activity. For this reason the movement is implemented using a ROS service, in this way the state machine ignore any information received from the outside until the position is reached. This behavior will last until one of the following happens:
 * The robot reaches the maximum level of fatigue : in this case the state will change to [Rest](#SMD-REST)  with the transition "tired"
 * A person has commanded something : in this case the state will change to [Play](#SMD-PLAY) with the transition "playing"
 
 ##### <a name="SMD-REST"></a>The Rest behavior
-The Rest behavior simulates the pet like robot when going to sleep. In fact, every movement that the robot perform increases the level of fatigue in the robot. Once the level of fatigue is above a threshold, the Rest behavior is activated. The transition "tired" is the same in both [Move](#SMD-MOVE) and [Play](#SMD-PLAY). Moreover, the threshold can be set from the launch file (see [Launch File](#SA-MSG) ).
+The Rest behavior simulates the pet like robot when going to sleep. In fact, every movement that the robot perform increases the level of fatigue in the robot. Once the level of fatigue is above a threshold, the Rest behavior is activated. The transition "tired" is the same in both [Move](#SMD-MOVE) and [Play](#SMD-PLAY). Moreover, the threshold can be set from the launch file.
 
 ##### <a name="SMD-PLAY"></a>The Play behavior
-When the robot is in the Play behavior, it waits for gesture from the person. This behavior will loop for a random number of times, between 1 to 4. When the robot receives a gesture it moves to the pointed location. As in the [Move](#SMD-MOVE) behavior, the movements are simulated calling the ROS service "/MoveTo".
+When the robot is in the Play behavior, it waits for gesture from the person. This behavior will loop for a random number of times, between 1 to 4. When the robot receives a gesture it moves to the pointed location. As in the [Move](#SMD-MOVE) behavior, the movements are simulated calling the dedicated ROS service.
 Each time the robot moves, the level of fatigue increases. Once it reaches the maximum, the state will change into [Rest](#SMD-REST) with the transition "tired"
 
 
@@ -150,5 +149,7 @@ This project was developed with the aim of being possible to implement, improve 
 
 # <a name="S-AC"></a>Authors and Contacts
 This project was relized by Andrea Gotelli.
+
 University email 4343879@unige.it
+
 gmail: gotelliandrea@gmail.it

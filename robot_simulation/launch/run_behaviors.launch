@@ -15,7 +15,7 @@
     <param name="fatigue_threshold" value="5" />
 
     <!-- Launch the node responsible of providing the service for the movement -->
-    <node pkg="robot_simulation" type="robot_simulation_robot" name="move_service_provider" output="screen"/>
+    <node pkg="robot_simulation" type="robot_simulation_move_service_provider" name="move_service_provider" output="screen"/>
 
     <!-- Launch the node simulating the person -->
     <node pkg="robot_simulation" type="robot_simulation_person" name="person"  output="screen"/>

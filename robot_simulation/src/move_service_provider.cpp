@@ -52,7 +52,7 @@ bool MoveToGivenPosition(robot_simulation_messages::MoveToRequest& T,
   waiting_time.sleep();
 
   //  Log the information that the position is reached
-  ROS_INFO_STREAM("Position reached : " << T.goal.position.x << ", " << T.goal.position.y);
+  ROS_INFO_STREAM("Position reached : " << T.goal.position.x << ", " << T.goal.position.y << " it took : " << travelling_time << " [s].");
   return true;
 }
 

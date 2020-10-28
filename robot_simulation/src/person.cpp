@@ -68,12 +68,12 @@ bool PointingGesture(robot_simulation_messages::GiveGesture::Request&,
   //  Wait for some time to simulate the person choosing the position to point at
   int min_time = 3;
   int max_time = 6;
-  int travelling_time = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(max_time - min_time + 1) + min_time);
-  ros::Duration waiting_time(travelling_time);
+  int decision_time = static_cast<int>(( static_cast<double>(rand())/RAND_MAX)*(max_time - min_time + 1) + min_time);
+  ros::Duration waiting_time(decision_time);
   waiting_time.sleep();
 
   //  Log to inform that position has been chosen
-  ROS_INFO_STREAM("Pointed location decided");
+  ROS_INFO_STREAM("Pointed location decided, it took : " << decision_time << " [s].");
   return true;
 }
 

@@ -119,8 +119,15 @@ In order to use this application is necessary to install smach. To do that it is
 
 where at the place of <distro> has to be written the installed ROS distribution. The command will install the viewer in order to visualize the behavior and the state in the state machine.
 
-To run this application it is sufficient to launch the only launch file that is present in the robot_simulation package.
+To run this application it is sufficient to launch the only launch file that is present in the robot_simulation package. After having build the package you can simply run:
 
+    roslaunch robot_simulation run_behaviors
+
+In order to generate the documentation, the is a Doxyfile in the doc folder. You have to run from terminal:
+
+    doxygen Doxyfile && firefox html/index.html
+
+in the doc folder. If you have not doxygen installed, [here](https://www.doxygen.nl/index.html) you can find Installation procedure and commands.
 
 # <a name="S-WH"></a>Working Hypothesis and Environment
 The appication works under the hypothesis that everything that could be considered as low level is ignored. In other words, this application is just for testing the architecture and to stress the system with what could be some possible input, disregarding how these events should be modeled.

@@ -9,7 +9,7 @@ Editors:
 
 This file aim to explain how to move inside this project. It should be read before starting to look around, it can give some insight on the elements and structure of the code.
 
-[doc](file:///doc/html/index.html)
+[doc](file:doc/html/index.html)
 
 ## <a name="SS-Index"></a>Index
 

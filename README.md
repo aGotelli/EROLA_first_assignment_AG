@@ -10,6 +10,7 @@ Editors:
 This file aim to explain how to move inside this project. It should be read before starting to look around, it can give some insight on the elements and structure of the code.
 
 
+
 ## <a name="SS-Index"></a>Index
 
 
@@ -64,7 +65,7 @@ Each time the robot moves, the level of fatigue increases. Once it reaches the m
 ## <a name="SA-CD"></a>The Component Diagram
 The following figure shows the components and their relevant parts of this application. Additionally, it also includes a class diagram inside the state machine component. It is important to understand that all the behaviors are simulated through the execution of the memeber function execute() common to all classes.
 
-![EROLA_first_assignment_AG](doc/images/component_diagram_v2.png)
+![EROLA_first_assignment_AG](doc/images/component_diagram_v3.png)
 
 The figure shows all the component with their interfaces. In the following, a brief description is given for all of them.
 
@@ -78,14 +79,17 @@ This component is a simple ROS service provider written in C++. It only contains
 
 
 ##### <a name="CD-p"></a>The person component
-The person component is a ROS node written in C++. It contains a publisher, a subscriber and a service provider. The subscrive is for retrieve the current state of the [state machine](#CD-sm). The publisher is for publishing the command to the pet like robot. The command is published only if: the state machine is in the [Move](#SMD-MOVE) state and it has passed a specific amount of time from the last call. This time elapsed varies randomly in an interval given by the user in the [Launch file](#SA-MSG). Finally, the service provider has a callback function represented by the computational component: PointingGesture. This function simply simulate the person pointing a location first by generating a random 2D position, then by waiting some time, randomly chosen between 3 and 6 seconds.
+The person component is a ROS node written in C++. It contains a publisher, a subscriber and a service provider. The subscrive is for retrieve the current state of the [state machine](#CD-sm). The publisher is for publishing the command to the pet like robot. The command is published only if: the state machine is in the [Move](#SMD-MOVE) state and it has passed a specific amount of time from the last call. This time elapsed varies randomly in an interval given by the user, setting the [related parameters](#MSG-P) in the launch file. Finally, the service provider has a callback function represented by the computational component: PointingGesture. This function simply simulate the person pointing a location first by generating a random 2D position, then by waiting some time, randomly chosen between 3 and 6 seconds.
 
 
 ##### <a name="CD-sm"></a>The state_machine component
 The state machine node is the heart of this simulation. It implements a state machine from the template of smach. The state machine offers three behaviors for the robot: [Move](#SMD-MOVE), [Play](#SMD-PLAY) and [Rest](#SMD-REST). Each behavior is implemented in the homonymous class. The class has only a constructor, where all the members are initialized and a member function execute(). In this last function the features for the corresponding behavior are implemented.
 
 
-## <a name="SA-MSG"></a>The Messages and parameters
+## <a name="SA-MSG"></a>The Messages and Parameters
+This package has some custom messages, services and parameters which are described in the following.
+
+### <a name="MSG-MSG"></a>The Messages
 The messages defined in this project are the following:
   * PersonCalling: is a message containing a string and a geometry_msgs Pose. It contains the command the person has given in the string and the position of the person in the geometry message.
 
@@ -93,6 +97,7 @@ Beside the message, this project makes use of two services:
   * GiveGesture: is the service message containing the request and the answer for the service providing the position where the person was pointing. It contains a boolean in the request, and a geometry_msgs Pose in the response. The boolean can be ignored when calling the service. It is used only because a service cannot be defined without at least one argument in the question. The response is the pointed location.
   * MoveTo: this is the service message used for the service simulating the robot movements. It contains the position the robot has to reach. it confirms the robot to have reached the position through the return of the callback, which is a boolean. IN other words, there is not a response field for this service.  
 
+### <a name="MSG-P"></a>The Parameters
 Finally, in this project there are some parameters which can be set from the [launch file](#S-Launch), allowing the user to easily change them before running the application. The parameters that can be changes are listed below.
 * world_width and world_height: allow to set the dimensions of the discretized 2D world.
 * sleep_x_coord and sleep_y_coord: allow to freely chose the sleeping position i.e. the position where the robot goes when in the [Rest](#SMD-REST) behavior.

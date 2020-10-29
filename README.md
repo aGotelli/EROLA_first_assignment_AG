@@ -64,7 +64,7 @@ Each time the robot moves, the level of fatigue increases. Once it reaches the m
 ## <a name="SA-CD"></a>The Component Diagram
 The following figure shows the components and their relevant parts of this application. Additionally, it also includes a class diagram inside the state machine component. It is important to understand that all the behaviors are simulated through the execution of the memeber function execute() common to all classes.
 
-![EROLA_first_assignment_AG](doc/images/component_diagram.png)
+![EROLA_first_assignment_AG](doc/images/component_diagram_v2.png)
 
 The figure shows all the component with their interfaces. In the following, a brief description is given for all of them.
 

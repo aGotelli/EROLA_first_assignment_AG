@@ -1,6 +1,6 @@
 /*! \mainpage Assignment documentation mainpage
  *
- * \section intro_sec Introduction
+ * \section intro_sec Disclaimer
  *
  * This documentation recalls the arguments and description of the evironment
  * carefully described in the README file. It is suggested to read the documentation

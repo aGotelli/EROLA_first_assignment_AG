@@ -56,7 +56,7 @@ The robot starts in the in the Move state, where the robot moves randomly in the
 The Rest behavior simulates the pet like robot when going to sleep. In fact, every movement that the robot perform increases the level of fatigue in the robot. Once the level of fatigue is above a threshold, the Rest behavior is activated. The transition "tired" is the same in both [Move](#SMD-MOVE) and [Play](#SMD-PLAY). Moreover, the threshold can be set from the launch file.
 
 ##### <a name="SMD-PLAY"></a>The Play behavior
-When the robot is in the Play behavior, it waits for gesture from the person. This behavior will loop for a random number of times, between 1 to 4. When the robot receives a gesture it moves to the pointed location. As in the [Move](#SMD-MOVE) behavior, the movements are simulated calling the dedicated ROS service.
+When the robot is in the Play behavior, it waits for gesture from the person. When the robot receives a gesture it moves to the pointed location. This behavior will loop for a random number of times, between 1 to 4. As in the [Move](#SMD-MOVE) behavior, the movements are simulated calling the dedicated ROS service.
 Each time the robot moves, the level of fatigue increases. Once it reaches the maximum, the state will change into [Rest](#SMD-REST) with the transition "tired"
 
 

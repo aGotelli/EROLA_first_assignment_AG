@@ -1,0 +1,9 @@
+/*! \mainpage Assignment documentation mainpage
+ *
+ * \section intro_sec Introduction
+ *
+ * This documentation recalls the arguments and description of the evironment
+ * carefully described in the README file. It is suggested to read the documentation
+ * only after have grasped the concepts described in the mentioned file.
+ *
+ */

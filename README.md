@@ -78,7 +78,7 @@ This component is a simple ROS service provider written in C++. It only contains
 
 
 ##### <a name="CD-p"></a>The person component
-The person component is a ROS node written in C++. It contains a publisher, a subscriber and a service provider. The subscriber is for retrieve the current state of the [state machine](#CD-sm). The publisher is for publishing the command to the pet like robot. The command is published only if: the state machine is in the [Move](#SMD-MOVE) state and it has passed a specific amount of time from the last call. This time elapsed varies randomly in an interval given by the user, setting the [related parameters](#MSG-P) in the launch file. Finally, the service provider has a callback function represented by the computational component: PointingGesture. This function simply simulate the person pointing a location first by generating a random 2D position, then by waiting some time, randomly chosen between 3 and 6 seconds.
+The person component is a ROS node written in C++. It contains a publisher, a subscriber and a service provider. The subscriber is for retrieve the current state of the [state machine](#CD-sm). The publisher is for publishing the command to the pet like robot. The command is published only if: the state machine is in the [Move](#SMD-MOVE) state and it has passed a specific amount of time from the last call. This time elapsed varies randomly in an interval given by the user, setting the [related parameters](#MSG-P) in the launch file. Finally, the service provider has a callback function represented by the computational component: PointingGesture. This function simply simulate the person pointing a location first by generating a random 2D position, then by waiting some time randomly chosen between 3 and 6 seconds.
 
 
 ##### <a name="CD-sm"></a>The state_machine component
@@ -89,7 +89,7 @@ The state machine node is the heart of this simulation. It implements a state ma
 This package has some custom messages, services and parameters which are described in the following.
 
 ### <a name="MSG-MSG"></a>The Message
-The messages defined in this project are the following:
+The message defined in this project is the following:
   * PersonCalling: is a message containing a string and a geometry_msgs Pose. It contains the command the person has given in the string and the position of the person in the geometry message.
 
 ### <a name="MSG-SRV"></a>The Services
@@ -98,7 +98,7 @@ Beside the message, this project makes use of two services:
   * MoveTo: this is the service message used for the service simulating the robot movements. It contains the position the robot has to reach. it confirms the robot to have reached the position through the return of the callback, which is a boolean. IN other words, there is not a response field for this service.  
 
 ### <a name="MSG-P"></a>The Parameters
-Finally, in this project there are some parameters which can be set from the [launch file](#S-Launch), allowing the user to easily change them before running the application. The parameters that can be changes are listed below.
+Finally, in this project there are some parameters which can be set from the launch file, allowing the user to easily change them before running the application. The parameters that can be changes are listed below.
 * world_width and world_height: allow to set the dimensions of the discretized 2D world.
 * sleep_x_coord and sleep_y_coord: allow to freely chose the sleeping position i.e. the position where the robot goes when in the [Rest](#SMD-REST) behavior.
 * minum_time_btw_calls and maximum_time_btw_calls allow to set the range where the time between two call to play will range.
@@ -145,9 +145,9 @@ The system is capable to keep track of the received command even when performing
 Moreover, the node responsible to simulate the person has some insight about the robot. In fact, it subscribes to the topic used to the state machine to publish the current state. In this way, it was possible to ensure that the command is published only if the robot is in the [Move](#SMD-MOVE).
 
 # <a name="S-SF"></a>System’s limitations
-The system is not currently able to simulate a real motion, it just waits for some random time before ideally reach the desired position. Moreover, the system is able to simulate only one interaction with the person through the command "play". Moreover, some components use services as interfaces. This leads to the problem that if a service provider component blocks while providing the response the whole application resents of the situation. For example, if a service server crashes, than the call to that server will lead to an error or other problem.
+The system is not currently able to simulate a real motion, it just waits for some random time before ideally reach the desired position. Additionally, the system is able to simulate only one interaction with the person through the command "play". Moreover, some components use services as interfaces. This leads to the problem that if a service provider component blocks while providing the response the whole application resents of the situation. For example, if a service server crashes, than the call to that server will lead to an error or other problem.
 
-Moreover, some parameters can be defined in the launch file but there are no tools to chek the user's settings. Usually, when there some possibility for the user to chose parameters, there should be implemented an error handling section in order to prevent the user to set inconsistent parameters.
+Furthermore, some parameters can be defined in the launch file but there are no tools to chek the user's settings. Usually, when there some possibility for the user to chose parameters, there should be implemented an error handling section in order to prevent the user to set inconsistent parameters.
 
 Finally, there is no implementation of the smach_viewer interface. This interface allows a more user friendly interpretation but it is not supported in python3 which is used in Ubuntu 20.04.
 

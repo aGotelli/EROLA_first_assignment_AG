@@ -135,7 +135,8 @@ In order to generate the documentation, the is a Doxyfile in the doc folder. You
 in the doc folder. If you have not doxygen installed, [here](https://www.doxygen.nl/index.html) you can find Installation procedure and commands.
 
 # <a name="S-WH"></a>Working Hypothesis and Environment
-The appication works under the hypothesis that everything that could be considered as low level is ignored. In other words, this application is just for testing the architecture and to stress the system with what could be some possible input, disregarding how these events should be modeled.
+The pet like robot is simulated in his behavior in a discretized world. It means that in this application the world is described as an empty plane where only integer position are defined. 
+The application works under the hypothesis that everything that could be considered as low level is ignored. In other words, this application is just for testing the architecture and to stress the system with what could be some possible input, disregarding how these events should be modeled.
 In this application, when the robot moves, it is assumed to not respond to any other stimulus. Every command or notification received will be processed only when the motion is finished. Moreover, the same hypothesis holds when the robot waits for a gesture.
 
 # <a name="S-SF"></a>System’s features

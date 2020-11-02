@@ -118,11 +118,28 @@ There are three packages where to find all the files for this project. In robot_
 
 
 # <a name="S-IRP"></a>Installation and Running Procedure
+Firt you need to git clone the project, in your ROS1 workspace:
+
+    git clone https://github.com/aGotelli/EROLA_first_assignment_AG.git
+
 In order to use this application is necessary to install smach. To do that it is sufficient to run the following:
 
     sudo apt-get install ros-<distro>-smach-viewer
 
 where at the place of <distro> has to be written the installed ROS distribution. The command will install the viewer in order to visualize the behavior and the state in the state machine.
+
+You need then to build your workspace, using catkin_make or catkin build command. However, catkin build is recommended. If you use catkin_make then run
+
+    catkin_make robot_simulation_messages
+
+And then
+    catkin_make
+
+Else if you use catkin build then a normal call is sufficient.
+
+You then need to make the script executable. In the state_machine/scripts folder run :
+
+    chmod +x state_machine.py
 
 To run this application it is sufficient to launch the only launch file that is present in the robot_simulation package. After having build the package you can simply run:
 
@@ -135,7 +152,7 @@ In order to generate the documentation, the is a Doxyfile in the doc folder. You
 in the doc folder. If you have not doxygen installed, [here](https://www.doxygen.nl/index.html) you can find Installation procedure and commands.
 
 # <a name="S-WH"></a>Working Hypothesis and Environment
-The pet like robot is simulated in his behavior in a discretized world. It means that in this application the world is described as an empty plane where only integer position are defined. 
+The pet like robot is simulated in his behavior in a discretized world. It means that in this application the world is described as an empty plane where only integer position are defined.
 The application works under the hypothesis that everything that could be considered as low level is ignored. In other words, this application is just for testing the architecture and to stress the system with what could be some possible input, disregarding how these events should be modeled.
 In this application, when the robot moves, it is assumed to not respond to any other stimulus. Every command or notification received will be processed only when the motion is finished. Moreover, the same hypothesis holds when the robot waits for a gesture.
 
@@ -162,6 +179,10 @@ This project was developed with the aim of being possible to implement, improve 
 * Change the interfaces which make use of service in order to favour non blocking interfaces.
 * Implement other possible command and realise different outcome for the [Move](#STD-MOVE) state.
 * Add the smach_viewer interface once solved the problem of integration or when the package itself is ported in python3.
+
+Furter technical Improvements, which will require more work, could be 
+* Implement a real control algorithm to make the robot to move
+* Implement a component able to recognize the gesture and estimate the person position in a real application.
 
 # <a name="S-AC"></a>Authors and Contacts
 This project was relized by Andrea Gotelli.

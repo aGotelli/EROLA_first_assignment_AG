@@ -7,7 +7,7 @@ Editors:
 
 * Andrea Gotelli
 
-This file aim to explain how to move inside this project. It should be read before starting to look at either the code and its documentation. It can give some insight on the elements and structure of the code, and what to expect in the documentation. 
+This file aim to explain how to move inside this project. It should be read before starting to look at either the code and its documentation. It can give some insight on the elements and structure of the code, and what to expect in the documentation.
 
 
 ## <a name="SS-Index"></a>Index
@@ -168,6 +168,8 @@ The system is not currently able to simulate a real motion, it just waits for so
 Furthermore, some parameters can be defined in the launch file but there are no tools to chek the user's settings. Usually, when there some possibility for the user to chose parameters, there should be implemented an error handling section in order to prevent the user to set inconsistent parameters.
 
 Finally, there is no implementation of the smach_viewer interface. This interface allows a more user friendly interpretation but it is not supported in python3 which is used in Ubuntu 20.04.
+
+Moreover, there is no version control. In other words, this project was developed in Ubuntu 20.04 using python3 and ROS Noetic. Using this package with older versions of ROS and/or python3 could lead to unexpected error. 
 
 
 # <a name="S-PTI"></a>Possible Technical Improvements

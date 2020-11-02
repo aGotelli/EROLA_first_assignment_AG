@@ -7,7 +7,7 @@ Editors:
 
 * Andrea Gotelli
 
-This file aim to explain how to move inside this project. It should be read before starting to look around, it can give some insight on the elements and structure of the code.
+This file aim to explain how to move inside this project. It should be read before starting to look at either the code and its documentation. It can give some insight on the elements and structure of the code, and what to expect in the documentation. 
 
 
 ## <a name="SS-Index"></a>Index

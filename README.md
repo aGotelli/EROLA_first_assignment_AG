@@ -143,7 +143,7 @@ You then need to make the script executable. In the state_machine/scripts folder
 
 To run this application it is sufficient to launch the only launch file that is present in the robot_simulation package. After having build the package you can simply run:
 
-    roslaunch robot_simulation run_behaviors
+    roslaunch robot_simulation run_behaviors.launch
 
 In order to generate the documentation, the is a Doxyfile in the doc folder. You have to run from terminal:
 
@@ -180,7 +180,7 @@ This project was developed with the aim of being possible to implement, improve 
 * Implement other possible command and realise different outcome for the [Move](#STD-MOVE) state.
 * Add the smach_viewer interface once solved the problem of integration or when the package itself is ported in python3.
 
-Furter technical Improvements, which will require more work, could be 
+Furter technical Improvements, which will require more work, could be
 * Implement a real control algorithm to make the robot to move
 * Implement a component able to recognize the gesture and estimate the person position in a real application.
 
